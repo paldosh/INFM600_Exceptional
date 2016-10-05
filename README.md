@@ -1,3 +1,6 @@
-# TeamExceptional
+This repository is for INFM 600 course project for Team Excceptional.
 
-This repository is for INFM 600 course project. 
+Team Members:
+Pal 
+Rahul
+David
