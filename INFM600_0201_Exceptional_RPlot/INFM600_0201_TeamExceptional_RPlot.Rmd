@@ -1,0 +1,1217 @@
+---
+title: "INFM600_0201_TeamExceptional_RPlot"
+output: html_notebook
+---
+INFM600 Information Environment[Team Exceptional]
+Document: R Plot
+Date: 29 November 2016
+
+Document Structure: We have three research questions. This document contains three separate scripts for plots for each question and also their interpretation.
+
+Research Question:[1] Does the change in temperature have an effect on the crime rate?
+Description: We are analyzing the trend of crime rate with respect to the changes in the temperature. Simple linear regression model is applied to figure out whether there is a relationship between the crime rate and the temperature.
+Dataset: Weather_Crime_Incidents2011-15 
+NOTE: This dataset includes the details of the crimes as well as the weather details of that day. This was created from two separate datasets in the data-cleaning phase
+Columns/Attributes used: REPORTDATENAME, OFFENSE,START_DATE,MaxTemp,MinTemp,RangeTemp
+Packages: plyr, ggplot2, xkcd, extrafont, tidyr, scales
+```{r RQ1 Loading the dataset into RStudio and loading support library. Classify the data according to the type of cases.}
+
+#Loading the dataset into RStudio and loading support library:
+data=read.csv(file="Weather_Crime_Incidents2011-15.csv", header=TRUE, sep=",")
+# Load rename function
+library(plyr)
+# Load plot function
+library(ggplot2)
+# Load xkcd 
+library(xkcd)
+library(extrafont)
+# Install a new library called 'reshape2' and load it. Reshape2 is used to convert our dataset into a particular format for plotting the values
+install.packages("reshape2")
+library(reshape2)
+#Segregating the REPORTDATETIME column into Date and Time columns by using the library tidyr
+install.packages("tidyr")
+library(tidyr)
+install.packages("scales")
+library(scales)
+
+# Classify the data of 2011-2015 according to the type of cases.
+#ARSON
+arson=subset(data,OFFENSE=="ARSON")
+#ASSUT
+assault=subset(data,OFFENSE=="ASSAULT W/DANGEROUS WEAPON")
+#BURGLARY
+burglary=subset(data,OFFENSE=="BURGLARY")
+#HOMICIDE
+homicide=subset(data,OFFENSE=="HOMICIDE")
+#MOTOR VEHICLE THEFT
+mvt=subset(data,OFFENSE=="MOTOR VEHICLE THEFT")
+#ROBBERY
+robbery=subset(data,OFFENSE=="ROBBERY")
+#SEX ABUSE
+sa=subset(data,OFFENSE=="SEX ABUSE")
+#THEFT FROM AUTO
+thefa=subset(data,OFFENSE=="THEFT F/AUTO")
+#THEFT FROM OTHER
+thefot=subset(data,OFFENSE=="THEFT/OTHER")
+
+```
+Part 1: Check the relationship between the frequency of all cases and temperature (Max Temp and Min Temp).
+```{r Part 1: Check the relationship between the frequency of all cases and temperature (Max Temp and Min Temp).}
+# Draw line chart
+plot(table(data$MaxTemp),type="l",xaxt="n",main= "The distribution of cases happened from 2011-2015",xlab="Temperature in degrees Fahrenheit", ylab="Number of cases",col="red")
+lines(table(data$MinTemp),type="l",col="blue",lty=2)
+axis(1,at=seq(0,120,3))
+legend("topleft", legend=c("Max Temperature", "Min Temperature"),col=c("red", "blue"), lty=1:2, cex=0.8)
+```
+
+According to the figure above, when the daily maximum temperature is between 85 degree and 87 degree, the number of crime cases would reach the peak. When the daily minimum temperature is between 66 degree and 69 degree, the number of crime cases would reach the peak. However, when the daily maximum temperature is higher than 87 degree or the daily minimum temperature is lower than 72 degree, the number of crimes would reduce significantly. 
+
+Part 2: Compare the impact of the range of temperature on the occurrence rate of all types of cases.
+Independent variable: Range of temperature of each day (interval)
+Dependent varibale: The frequency of each type of cases happened (ratio)
+Find the frequency of each type of cases from the data of 2011-2015 corresponding to each numerical value in "range of temperature" column.
+
+```{r Part 2: Compare the impact of the range of temperature on the occurrence rate of all types of cases.}
+#ARSON
+rangeT_arson=table(arson$RangeTemp)
+rangeT_arson=as.data.frame(rangeT_arson)
+rangeT_arson$Var1=as.numeric(as.character(rangeT_arson$Var1))
+rangeT_arson=rename(rangeT_arson, c("Var1"="Range.of.Temp", "Freq"="NumberofCases"))
+#ASSAULT
+rangeT_assault=table(assault$RangeTemp)
+rangeT_assault=as.data.frame(rangeT_assault)
+rangeT_assault$Var1=as.numeric(as.character(rangeT_assault$Var1))
+rangeT_assault=rename(rangeT_assault, c("Var1"="Range.of.Temp", "Freq"="NumberofCases"))
+#BURGLARY
+rangeT_burglary=table(burglary$RangeTemp)
+rangeT_burglary=as.data.frame(rangeT_burglary)
+rangeT_burglary$Var1=as.numeric(as.character(rangeT_burglary$Var1))
+rangeT_burglary=rename(rangeT_burglary, c("Var1"="Range.of.Temp", "Freq"="NumberofCases"))
+#HOMICIDE
+rangeT_homicide=table(homicide$RangeTemp)
+rangeT_homicide=as.data.frame(rangeT_homicide)
+rangeT_homicide$Var1=as.numeric(as.character(rangeT_homicide$Var1))
+rangeT_homicide=rename(rangeT_homicide, c("Var1"="Range.of.Temp", "Freq"="NumberofCases"))
+#MOTOR VEHICLE THEFT
+rangeT_mvt=table(mvt$RangeTemp)
+rangeT_mvt=as.data.frame(rangeT_mvt)
+rangeT_mvt$Var1=as.numeric(as.character(rangeT_mvt$Var1))
+rangeT_mvt=rename(rangeT_mvt, c("Var1"="Range.of.Temp", "Freq"="NumberofCases"))
+#ROBBERY
+rangeT_robbery=table(robbery$RangeTemp)
+rangeT_robbery=as.data.frame(rangeT_robbery)
+rangeT_robbery$Var1=as.numeric(as.character(rangeT_robbery$Var1))
+rangeT_robbery=rename(rangeT_robbery, c("Var1"="Range.of.Temp", "Freq"="NumberofCases"))
+#SEX ABUSE
+rangeT_sa=table(sa$RangeTemp)
+rangeT_sa=as.data.frame(rangeT_sa)
+rangeT_sa$Var1=as.numeric(as.character(rangeT_sa$Var1))
+rangeT_sa=rename(rangeT_sa, c("Var1"="Range.of.Temp", "Freq"="NumberofCases"))
+#THEFT FROM AUTO
+rangeT_thefa=table(thefa$RangeTemp)
+rangeT_thefa=as.data.frame(rangeT_thefa)
+rangeT_thefa$Var1=as.numeric(as.character(rangeT_thefa$Var1))
+rangeT_thefa=rename(rangeT_thefa, c("Var1"="Range.of.Temp", "Freq"="NumberofCases"))
+#THEFT FROM OTHER
+rangeT_thefot=table(thefot$RangeTemp)
+rangeT_thefot=as.data.frame(rangeT_thefot)
+rangeT_thefot$Var1=as.numeric(as.character(rangeT_thefot$Var1))
+rangeT_thefot=rename(rangeT_thefot, c("Var1"="Range.of.Temp", "Freq"="NumberofCases"))
+
+#Draw histogram
+
+#ARSON
+hist(rangeT_arson$Range.of.Temp,main= "The distribution of 'ARSON' cases  2011-2015", xlab="Range of temperature in degrees Fahrenheit", ylab="Number of cases",col="purple") 
+#ASSAULT
+hist(rangeT_assault$Range.of.Temp,main= "The distribution of 'ASSAULT' cases  2011-2015", xlab="Range of temperature in degrees Fahrenheit", ylab="Number of cases",col="purple") 
+#BURGLARY
+hist(rangeT_burglary$Range.of.Temp,main= "The distribution of 'BURGLARY' cases 2011-2015", xlab="Range of temperature in degrees Fahrenheit", ylab="Number of cases",col="purple") 
+#HOMICIDE
+hist(rangeT_homicide$Range.of.Temp,main= "The distribution of 'HOMICIDE' cases 2011-2015", xlim=c(0, 50),xlab="Range of temperature in degrees Fahrenheit", ylab="Number of cases",col="purple") 
+#MOTOR VEHICLE THEFT
+hist(rangeT_mvt$Range.of.Temp,main= "The distribution of 'MOTOR VEHICLE THEFT' cases 2011-2015", xlab="Range of temperature in degrees Fahrenheit", ylab="Number of cases",col="purple") 
+#ROBBERY
+hist(rangeT_robbery$Range.of.Temp,main= "The distribution of 'ROBBERY' cases 2011-2015", xlab="Range of temperature in degrees Fahrenheit", ylab="Number of cases",col="purple") 
+#SEX ABUSE
+hist(rangeT_sa$Range.of.Temp,main= "The distribution of 'SEX ABUSE' cases 2011-2015", xlab="Range of temperature in degrees Fahrenheit", ylab="Number of cases",col="purple") 
+#THEFT FROM AUTO
+hist(rangeT_thefa$Range.of.Temp,main= "The distribution of 'THEFT FROM AUTO' cases 2011-2015", xlab="Range of temperature in degrees Fahrenheit", ylab="Number of cases",col="purple") 
+#THEFT FROM OTHER
+hist(rangeT_thefot$Range.of.Temp,main= "The distribution of 'THEFT FROM OTHER' cases 2011-2015", xlab="Range of temperature in degrees Fahrenheit", ylab="Number of cases",col="purple") 
+
+```
+According to the 9 figures above, when the daily temperature difference is between 10 degree and 30 degree, the number of various crime cases would increase. Based on the existing weather dataset, on the whole, the period from September to December as well as from March to June is the period when most crime cases happen. 
+
+
+Part 3: Compare the impact of max temperature on the occurrence rate of all types of cases.
+Find the frequency of each type of cases from the data of 2011-2015 corresponding to each numerical value in "max temperature" column.
+Independent varibale: Max Temprature of each day from 2011 to 2015 (interval)
+Dependent varibale: The frequency of each type of cases happened (ratio)
+```{r Part 3: Compare the impact of max temperature on the occurrence rate of all types of cases.}
+#ARSON
+#Find out the max temperature on the day when this type of cases happened, and count the frequency of the same type of cases corresponding to each temperature.
+maxT_arson=table(arson$MaxTemp)
+maxT_arson=as.data.frame(maxT_arson)
+#Save the value of temperature and  frequency of the type of cases in a new data frame
+maxT_arson$Var1=as.numeric(as.character(maxT_arson$Var1))
+#Rename columns' names
+maxT_arson=rename(maxT_arson, c("Var1"="MaxTemp", "Freq"="NumberofCases"))
+#ASSAULT
+maxT_assault=table(assault$MaxTemp)
+maxT_assault=as.data.frame(maxT_assault)
+maxT_assault$Var1=as.numeric(as.character(maxT_assault$Var1))
+maxT_assault=rename(maxT_assault, c("Var1"="MaxTemp", "Freq"="NumberofCases"))
+#BURGLARY
+maxT_burglary=table(burglary$MaxTemp)
+maxT_burglary=as.data.frame(maxT_burglary)
+maxT_burglary$Var1=as.numeric(as.character(maxT_burglary$Var1))
+maxT_burglary=rename(maxT_burglary, c("Var1"="MaxTemp", "Freq"="NumberofCases"))
+#HOMICIDE
+maxT_homicide=table(homicide$MaxTemp)
+maxT_homicide=as.data.frame(maxT_homicide)
+maxT_homicide$Var1=as.numeric(as.character(maxT_homicide$Var1))
+maxT_homicide=rename(maxT_homicide, c("Var1"="MaxTemp", "Freq"="NumberofCases"))
+#MOTOR VEHICLE THEFT
+maxT_mvt=table(mvt$MaxTemp)
+maxT_mvt=as.data.frame(maxT_mvt)
+maxT_mvt$Var1=as.numeric(as.character(maxT_mvt$Var1))
+maxT_mvt=rename(maxT_mvt, c("Var1"="MaxTemp", "Freq"="NumberofCases"))
+#ROBBERY
+maxT_robbery=table(robbery$MaxTemp)
+maxT_robbery=as.data.frame(maxT_robbery)
+maxT_robbery$Var1=as.numeric(as.character(maxT_robbery$Var1))
+maxT_robbery=rename(maxT_robbery, c("Var1"="MaxTemp", "Freq"="NumberofCases"))
+#SEX ABUSE
+maxT_sa=table(sa$MaxTemp)
+maxT_sa=as.data.frame(maxT_sa)
+maxT_sa$Var1=as.numeric(as.character(maxT_sa$Var1))
+maxT_sa=rename(maxT_sa, c("Var1"="MaxTemp", "Freq"="NumberofCases"))
+#THEFT FROM AUTO
+maxT_thefa=table(thefa$MaxTemp)
+maxT_thefa=as.data.frame(maxT_thefa)
+maxT_thefa$Var1=as.numeric(as.character(maxT_thefa$Var1))
+maxT_thefa=rename(maxT_thefa, c("Var1"="MaxTemp", "Freq"="NumberofCases"))
+#THEFT FROM OTHER
+maxT_thefot=table(thefot$MaxTemp)
+maxT_thefot=as.data.frame(maxT_thefot)
+maxT_thefot$Var1=as.numeric(as.character(maxT_thefot$Var1))
+maxT_thefot=rename(maxT_thefot, c("Var1"="MaxTemp", "Freq"="NumberofCases"))
+
+# Draw scatterplots
+# XKCD theme
+theme_xkcd <- theme(
+  panel.background = element_rect(fill="white"),
+  panel.grid = element_line(colour="white"),
+  axis.text.x = element_text(colour="black"),
+  text = element_text(size=8)
+)
+
+
+#ARSON
+ggplot(maxT_arson,aes(MaxTemp,NumberofCases))+ 
+  geom_point()+
+  geom_smooth(method='lm')+
+  labs(title = "The relationship between number of 'ARSON' cases and average temperature 2011-2015", x="Temperature in degrees Fahrenheit", y="Number of cases")+
+  theme_xkcd+
+  theme(plot.title = element_text(hjust = 0.5))
+#ASSAULT
+ggplot(maxT_assault,aes(MaxTemp,NumberofCases))+ 
+  geom_point()+
+  geom_smooth(method='lm')+
+  labs(title = "The relationship between number of 'ASSAULT' cases and average temperature 2011-2015", x="Temperature in degrees Fahrenheit", y="Number of cases")+
+  theme_xkcd+
+  theme(plot.title = element_text(hjust = 0.5))
+#BURGLARY
+ggplot(maxT_burglary,aes(MaxTemp,NumberofCases))+ 
+  geom_point()+
+  geom_smooth(method='lm')+
+  labs(title = "The relationship between number of 'BURGLARY' cases and average temperature 2011-2015", x="Temperature in degrees Fahrenheit", y="Number of cases")+
+  theme_xkcd+
+  theme(plot.title = element_text(hjust = 0.5))
+#HOMICIDE
+ggplot(maxT_homicide,aes(MaxTemp,NumberofCases))+ 
+  geom_point()+
+  geom_smooth(method='lm')+
+  labs(title = "The relationship between number of 'HOMICIDE' cases and average temperature 2011-2015", x="Temperature in degrees Fahrenheit", y="Number of cases")+
+  theme_xkcd+
+  theme(plot.title = element_text(hjust = 0.5))
+#MOTOR VEHICLE THEFT
+ggplot(maxT_mvt,aes(MaxTemp,NumberofCases))+ 
+  geom_point()+
+  geom_smooth(method='lm')+
+  labs(title = "The relationship between number of 'MOTOR VEHICLE THEFT' cases and average temperature 2011-2015", x="Temperature in degrees Fahrenheit", y="Number of cases")+
+  theme_xkcd+
+  theme(plot.title = element_text(hjust = 0.5))
+#ROBBERY
+ggplot(maxT_robbery,aes(MaxTemp,NumberofCases))+ 
+  geom_point()+
+  geom_smooth(method='lm')+
+  labs(title = "The relationship between number of 'ROBBERY' cases and average temperature 2011-2015", x="Temperature in degrees Fahrenheit", y="Number of cases")+
+  theme_xkcd+
+  theme(plot.title = element_text(hjust = 0.5))
+#SEX ABUSE
+ggplot(maxT_sa,aes(MaxTemp,NumberofCases))+ 
+  geom_point()+
+  geom_smooth(method='lm')+
+  labs(title = "The relationship between number of 'SEX ABUSE' cases and average temperature 2011-2015", x="Temperature in degrees Fahrenheit", y="Number of cases")+
+  theme_xkcd+
+  theme(plot.title = element_text(hjust = 0.5))
+#THEFT FROM AUTO
+ggplot(maxT_thefa,aes(MaxTemp,NumberofCases))+ 
+  geom_point()+
+  geom_smooth(method='lm')+
+  labs(title = "The relationship between number of 'THEFT FROM AUTO' cases and average temperature 2011-2015", x="Temperature in degrees Fahrenheit", y="Number of cases")+
+  theme_xkcd+
+  theme(plot.title = element_text(hjust = 0.5))
+#THEFT FROM OTHER
+ggplot(maxT_thefot,aes(MaxTemp,NumberofCases))+ 
+  geom_point()+
+  geom_smooth(method='lm')+
+  labs(title = "The relationship between  number of 'THEFT FROM OTHER' cases and average temperature 2011-2015", x="Temperature in degrees Fahrenheit", y="Number of cases")+
+  theme_xkcd+
+  theme(plot.title = element_text(hjust = 0.5))
+
+
+```
+According to the 9 figures above, with the increase of average temperature, the number of various crime cases also increases. The temperature is directly proportional to the number of crime cases. However, the average temperature of the days when most cases happen is between 65 degree and 90 degree. Meanwhile, the number of the type of theft cases is much larger than other kinds of crime cases.
+
+```{r RQ2}
+# Research Question:[2]	Is there a relation between the number of nightclubs with the crime rate in a particular geographic unit (cluster)?
+# Description: We will be analyzing the crime rate for each cluster with respect to the number of nightclubs in each cluster. Moreover, we will be looking into 
+# 			   different types of crimes (Homicide, Burglary, Sexual Assault, etc.)
+# Datasets: Crime_Incidents_year(2011-2015)- all details about crimes for each year, NightClub_Cluster- list of nightclubs, classified by cluster id
+
+# [Step 0] Opening each dataset in RStudio
+Crime_Incidents__2011 <- read.csv("Crime_Incidents__2011.csv")
+
+Crime_Incidents__2012 <- read.csv("Crime_Incidents__2012.csv")
+
+Crime_Incidents__2013 <- read.csv("Crime_Incidents__2013.csv")
+
+Crime_Incidents__2014 <- read.csv("Crime_Incidents__2014.csv")
+
+Crime_Incidents__2015 <- read.csv("Crime_Incidents__2015.csv")
+
+NightClubs_DC <- read.csv("NightClubs_DC.csv")
+
+
+```
+
+
+
+```{r RQ2: All Crimes,fig.width=10, fig.height=6}
+# [Step 1] Creating a frequency table for getting the total number of crimes in each cluster for each year and for number of clubs in each cluster
+
+temp_club=table(NightClubs_DC$Cluster)
+temp_crime=table(Crime_Incidents__2011$NEIGHBORHOODCLUSTER)
+
+# [Step 2] Merging the crime dataset with the nightclubs for year-2011
+
+finaldataset=merge(temp_club,temp_crime,by="Var1")
+
+# Repeat step 1 and 2 for years [2012-2015]
+
+temp_crime=table(Crime_Incidents__2012$NEIGHBORHOODCLUSTER)
+finaldataset=merge(finaldataset,temp_crime,by="Var1")
+
+temp_crime=table(Crime_Incidents__2013$NEIGHBORHOODCLUSTER)
+finaldataset=merge(finaldataset,temp_crime,by="Var1")
+
+temp_crime=table(Crime_Incidents__2014$NEIGHBORHOODCLUSTER)
+finaldataset=merge(finaldataset,temp_crime,by="Var1")
+
+temp_crime=table(Crime_Incidents__2015$NEIGHBORHOODCLUSTER)
+finaldataset=merge(finaldataset,temp_crime,by="Var1")
+
+# [Step 2.1] Changing the names of the columns to increase understandibility and saving the dataset as a csv file
+
+names(finaldataset) <- c("Cluster", "Number.NightClubs","Number.Total.Crimes.2011","Number.Total.Crimes.2012","Number.Total.Crimes.2013","Number.Total.Crimes.2014","Number.Total.Crimes.2015")
+write.csv(finaldataset,file="Final_Club_Crime.csv", row.names = FALSE)
+
+# [Step 2.2] Opening the new dataset and attaching it to the current workspace 
+
+Final_Club_Crime <- read.csv("Final_Club_Crime.csv")
+attach(Final_Club_Crime)
+
+# [Step 3] Converting the data so as to be able to plot all three variables (#Crimes, Clusters and #NightClubs) and check the new data
+
+newdata=melt(Final_Club_Crime,id="Cluster")
+
+# [Step 3.1] Removing the unwanted rows after inspecting the new data
+
+new=newdata[15:84,]
+
+# [Step 4] Creating a plot of total crimes vs cluster[number of night clubs] for all years 2011-2015
+
+g=ggplot(new, aes(x = Cluster, y = value, colour = variable)) + geom_line(size=1.25) + ylab(label="Number of crimes") + xlab("Cluster[Number of NightClubs]") 
+
+
+# [Step 4.1] Adding details to the plot: create breakpoints on x-axis (each cluster) and labelling them cluster-number[number of nightclubs in that cluster], giving the plot a title and marking each point on each plotline
+
+g=g + theme(axis.line = element_line(colour = "black"))+scale_x_continuous(breaks=c(1,2,3,4,6,7,8,9,18,22,23,25,26,27),
+labels = c("1[13]", "2[3]", "3[16]", "4[2]", "6[28]", "7[1]", "8[18]", "9[1]", "18[1]", "22[3]", "23[1]", "25[6]", "26[2]", "27[11]")) + geom_point() + ggtitle("Total number of crimes in each cluster[number of Night Clubs]")
+
+# [Step 4.2] Modifying the legend (table defining the different line plots) on the right of the plot: creating a background, renaming the variables in the legend for clear understanding
+
+g=g+ theme(legend.background = element_rect(fill="gray90", size=.5, linetype="dotted"))+ scale_colour_discrete(name  ="Total Number of Crimes for Each Year", breaks=c("Number.Total.Crimes.2011", "Number.Total.Crimes.2012","Number.Total.Crimes.2013","Number.Total.Crimes.2014","Number.Total.Crimes.2015"), 
+labels=c("2011", "2012","2013","2014","2015")) + scale_shape_discrete(name  ="Total Number of Crimes for Each Year", 
+breaks=c("Number.Total.Crimes.2011", "Number.Total.Crimes.2012","Number.Total.Crimes.2013","Number.Total.Crimes.2014","Number.Total.Crimes.2015"),
+labels=c("2011", "2012","2013","2014","2015"))
+
+g=g+theme(legend.position="bottom") + theme(plot.title = element_text(hjust = 0.5)) 
+g
+
+# Interpretation: The x axis contains the cluster number with the number of nightclubs in that cluster in the square brackets.
+# Each line graph depicts the number of crimes in each cluster for a particular year.
+# From the plot, it is clear that the maximum number of crimes occur in cluster 2 and the least in cluster 27. But, there is no 
+# relation between the number of clubs in that cluster and the number of crimes.
+
+```
+
+
+
+
+```{r RQ2: Arson,fig.width=10, fig.height=6}
+# Steps 1-6 are repeated, this time for a specific type of crime: Arson. Few modifications are made to accomodate the difference 
+# [Step 1] Creating a subset of the crime dataset to include data only related to Arson
+
+arson.11=subset(Crime_Incidents__2011,OFFENSE=="ARSON")
+arson.12=subset(Crime_Incidents__2012,OFFENSE=="ARSON")
+arson.13=subset(Crime_Incidents__2013,OFFENSE=="ARSON")
+arson.14=subset(Crime_Incidents__2014,OFFENSE=="ARSON")
+arson.15=subset(Crime_Incidents__2015,OFFENSE=="ARSON")
+
+# [Step 2] Creating a frequency table for all arsons in 2011, classified by cluster
+temp.arson=table(arson.11$NEIGHBORHOODCLUSTER)
+
+# [Step 3] Merging the arson crime-dataset with the nightclubs for year-2011 
+
+arson.final.dataset=merge(temp_club,temp.arson,by="Var1")
+names(arson.final.dataset)=c("Var1", "Number.NightClubs", "Number.Arson.2011")
+
+# [Step 3.1] Repeating it for all years 2012-15
+temp.arson=table(arson.12$NEIGHBORHOODCLUSTER)
+arson.final.dataset=merge(arson.final.dataset,temp.arson,by="Var1")
+
+names(arson.final.dataset)=c("Var1", "Number.NightClubs", "Number.Arson.2011","Number.Arson.2012")
+
+temp.arson=table(arson.13$NEIGHBORHOODCLUSTER)
+arson.final.dataset=merge(arson.final.dataset,temp.arson,by="Var1")
+
+names(arson.final.dataset)=c("Var1", "Number.NightClubs", "Number.Arson.2011","Number.Arson.2012","Number.Arson.2013")
+
+temp.arson=table(arson.14$NEIGHBORHOODCLUSTER)
+arson.final.dataset=merge(arson.final.dataset,temp.arson,by="Var1")
+
+names(arson.final.dataset)=c("Var1", "Number.NightClubs", "Number.Arson.2011","Number.Arson.2012","Number.Arson.2013","Number.Arson.2014")
+
+temp.arson=table(arson.15$NEIGHBORHOODCLUSTER)
+arson.final.dataset=merge(arson.final.dataset,temp.arson,by="Var1")
+
+
+# [Step 4] Renaming the columns of the final dataset and writing it to a csv file
+
+names(arson.final.dataset)=c("Cluster", "Number.NightClubs", "Number.Arson.2011","Number.Arson.2012","Number.Arson.2013","Number.Arson.2014","Number.Arson.2015")
+
+write.csv(arson.final.dataset,file="Arson.Final.csv")
+Arson.Final <- read.csv("Arson.Final.csv")
+
+# [Step 5] Loading the reshape2 library and converting the data so as to be able to plot all three variables (#Arsons, Clusters and #NightClubs) and check the new data
+
+new.arson=melt(Arson.Final,id="Cluster")
+
+# [Step 5.1] Removing the unwanted rows after inspecting the new data
+
+new.arson.data=new.arson[7:21,]
+
+
+# [Step 6] Loading the ggplot2 library and adding details to the plot: create breakpoints on x-axis (each cluster) and labelling them cluster-number[number of nightclubs in that cluster], giving the plot a title and marking each point on each plotline
+
+g=ggplot(new.arson.data, aes(x = Cluster, y = value, colour = variable)) + geom_line(size=1.25) + ylab(label="Number of crimes (Arson)") + xlab("Cluster[Number of NightClubs]") 
+g=g + theme(axis.line = element_line(colour = "black"))+scale_x_continuous(breaks=c(2,18,23), labels = c("2[3]", "18[1]", "23[1]")) + geom_point() + ggtitle("Total number of arsons in each cluster[number of Night Clubs]")
+
+# [Step 6.1] Modifying the legend (table defining the different line plots) on the right of the plot: creating a background, renaming the variables in the legend for clear understanding
+
+g=g + theme(legend.background = element_rect(fill="gray90", size=.5, linetype="dotted")) + scale_colour_discrete(name  ="Total Number of Arsons for Each Year", breaks=c("Number.Arson.2011", "Number.Arson.2012","Number.Arson.2013","Number.Arson.2014","Number.Arson.2015"), labels=c("2011", "2012","2013","2014","2015"))
+
+g=g+theme(legend.position="bottom") + theme(plot.title = element_text(hjust = 0.5)) 
+
+g
+
+# Interpretation: The x axis contains the cluster number with the number of nightclubs in that cluster in the square brackets.
+# Each line graph depicts the number of arsons in each cluster for a particular year.
+# From the plot, it is not very clear as to which cluster has the maximum and the minimum number of arsons and if there is any relation between the number of nightclubs and the number of arsons occuring.
+
+# End of Arson
+```
+
+```{r RQ2: Assault,fig.width=10, fig.height=6}
+# Crime type: Assault
+
+# [Step 1] Creating a subset of the crime dataset to include data only related to Assault
+
+assault.11=subset(Crime_Incidents__2011,OFFENSE=="ASSAULT W/DANGEROUS WEAPON")
+assault.12=subset(Crime_Incidents__2012,OFFENSE=="ASSAULT W/DANGEROUS WEAPON")
+assault.13=subset(Crime_Incidents__2013,OFFENSE=="ASSAULT W/DANGEROUS WEAPON")
+assault.14=subset(Crime_Incidents__2014,OFFENSE=="ASSAULT W/DANGEROUS WEAPON")
+assault.15=subset(Crime_Incidents__2015,OFFENSE=="ASSAULT W/DANGEROUS WEAPON")
+
+# [Step 2] Creating a frequency table for all assaults in 2011, classified by cluster
+
+temp.assault=table(assault.11$NEIGHBORHOODCLUSTER)
+
+# [Step 3] Merging the crime-dataset with the nightclubs for year-2011 and repeating it for all years 2012-15
+
+assault.final.dataset=merge(temp_club,temp.assault,by="Var1")
+
+names(assault.final.dataset)=c("Var1", "Number.NightClubs", "Number.Assault.2011")
+
+# [Step 3.1] Repeating it for all years 2012-15
+
+temp.assault=table(assault.12$NEIGHBORHOODCLUSTER)
+assault.final.dataset=merge(assault.final.dataset,temp.assault,by="Var1")
+
+names(assault.final.dataset)=c("Var1", "Number.NightClubs", "Number.Assault.2011","Number.Assault.2012")
+
+temp.assault=table(assault.13$NEIGHBORHOODCLUSTER)
+assault.final.dataset=merge(assault.final.dataset,temp.assault,by="Var1")
+
+names(assault.final.dataset)=c("Var1", "Number.NightClubs", "Number.Assault.2011","Number.Assault.2012","Number.Assault.2013")
+
+temp.assault=table(assault.14$NEIGHBORHOODCLUSTER)
+assault.final.dataset=merge(assault.final.dataset,temp.assault,by="Var1")
+
+names(assault.final.dataset)=c("Var1", "Number.NightClubs", "Number.Assault.2011","Number.Assault.2012","Number.Assault.2013","Number.Assault.2014")
+
+temp.assault=table(assault.15$NEIGHBORHOODCLUSTER)
+assault.final.dataset=merge(assault.final.dataset,temp.assault,by="Var1")
+
+# [Step 4] Renaming the columns of the final dataset and writing it to a csv file
+
+names(assault.final.dataset)=c("Cluster", "Number.NightClubs", "Number.Assault.2011","Number.Assault.2012","Number.Assault.2013","Number.Assault.2014","Number.Assault.2015")
+
+write.csv(assault.final.dataset,file="Assault.Final.csv")
+Assault.Final <- read.csv("Assault.Final.csv")
+
+# [Step 5] Removing the unwanted rows after inspecting the new data
+
+new.assault=melt(Assault.Final,id="Cluster")
+new.assault.data=new.assault[29:98,]
+
+# [Step 6] Loading the ggplot2 library and adding details to the plot: create breakpoints on x-axis (each cluster) and labelling them cluster-number[number of nightclubs in that cluster], giving the plot a title and marking each point on each plotline
+
+
+g=ggplot(new.assault.data, aes(x = Cluster, y = value, colour = variable)) + geom_line(size=1.25) + ylab(label="Number of crimes (Assault)") + xlab("Cluster[Number of NightClubs]") 
+g=g + theme(axis.line = element_line(colour = "black"))+scale_x_continuous(breaks=c(1,2,3,4,6,7,8,9,18,22,23,25,26,27), labels = c("1[13]", "2[3]", "3[16]", "4[2]", "6[28]", "7[1]", "8[18]", "9[1]", "18[1]", "22[3]", "23[1]", "25[6]", "26[2]", "27[11]")) + geom_point() + ggtitle("Total number of assaults in each cluster[number of Night Clubs]")
+
+# [Step 6.1] Modifying the legend (table defining the different line plots) on the right of the plot: creating a background, renaming the variables in the legend for clear understanding
+
+g=g + theme(legend.background = element_rect(fill="gray90", size=.5, linetype="dotted")) + scale_colour_discrete(name  ="Total Number of Assaults for Each Year", breaks=c("Number.Assault.2011", "Number.Assault.2012","Number.Assault.2013","Number.Assault.2014","Number.Assault.2015"), labels=c("2011", "2012","2013","2014","2015")) + scale_shape_discrete(name  ="Total Number of Assaults for Each Year", breaks=c("Number.Assault.2011", "Number.Assault.2012","Number.Assault.2013","Number.Assault.2014","Number.Assault.2015"),labels=c("2011", "2012","2013","2014","2015"))
+
+g=g+theme(legend.position="bottom") +  theme(plot.title = element_text(hjust = 0.5)) 
+
+g
+
+# Interpretation: The x axis contains the cluster number with the number of nightclubs in that cluster in the square brackets.
+# Each line graph depicts the number of assaults in each cluster for a particular year.
+# From the plot, it is clear that the maximum number of crimes occur in cluster 23 and the least in cluster 27. But, there is no 
+# relation between the number of clubs in that cluster and the number of crimes.
+
+# end of Assault
+
+
+```
+
+```{r RQ2: Burglary,fig.width=10, fig.height=6}
+
+# Crime type: Burglary
+
+# [Step 1] Creating a subset of the crime dataset to include data only related to Burglary
+
+burglary.11=subset(Crime_Incidents__2011,OFFENSE=="BURGLARY")
+burglary.12=subset(Crime_Incidents__2012,OFFENSE=="BURGLARY")
+burglary.13=subset(Crime_Incidents__2013,OFFENSE=="BURGLARY")
+burglary.14=subset(Crime_Incidents__2014,OFFENSE=="BURGLARY")
+burglary.15=subset(Crime_Incidents__2015,OFFENSE=="BURGLARY")
+
+# [Step 2] Creating a frequency table for all burglaries in 2011, classified by cluster
+
+temp.burglary=table(burglary.11$NEIGHBORHOODCLUSTER)
+#temp.burglary
+
+# [Step 3] Merging the crime-dataset with the nightclubs for year-2011 and repeating it for all years 2012-15
+
+burglary.final.dataset=merge(temp_club,temp.burglary,by="Var1")
+#burglary.final.dataset
+names(burglary.final.dataset)=c("Var1", "Number.NightClubs", "Number.Burglary.2011")
+#burglary.final.dataset
+
+# [Step 3.1] Repeating it for all years 2012-15
+
+temp.burglary=table(burglary.12$NEIGHBORHOODCLUSTER)
+burglary.final.dataset=merge(burglary.final.dataset,temp.burglary,by="Var1")
+#burglary.final.dataset
+names(burglary.final.dataset)=c("Var1", "Number.NightClubs", "Number.Burglary.2011","Number.Burglary.2012")
+#burglary.final.dataset
+temp.burglary=table(burglary.13$NEIGHBORHOODCLUSTER)
+burglary.final.dataset=merge(burglary.final.dataset,temp.burglary,by="Var1")
+#burglary.final.dataset
+names(burglary.final.dataset)=c("Var1", "Number.NightClubs", "Number.Burglary.2011","Number.Burglary.2012","Number.Burglary.2013")
+#burglary.final.dataset
+temp.burglary=table(burglary.14$NEIGHBORHOODCLUSTER)
+burglary.final.dataset=merge(burglary.final.dataset,temp.burglary,by="Var1")
+#burglary.final.dataset
+names(burglary.final.dataset)=c("Var1", "Number.NightClubs", "Number.Burglary.2011","Number.Burglary.2012","Number.Burglary.2013","Number.Burglary.2014")
+#burglary.final.dataset
+temp.burglary=table(burglary.15$NEIGHBORHOODCLUSTER)
+burglary.final.dataset=merge(burglary.final.dataset,temp.burglary,by="Var1")
+#burglary.final.dataset
+
+# [Step 4] Renaming the columns of the final dataset and writing it to a csv file
+
+names(burglary.final.dataset)=c("Cluster", "Number.NightClubs", "Number.Burglary.2011","Number.Burglary.2012","Number.Burglary.2013","Number.Burglary.2014","Number.Burglary.2015")
+
+write.csv(burglary.final.dataset,file="Burglary.Final.csv")
+Burglary.Final <- read.csv("Burglary.Final.csv")
+
+# [Step 5] Removing the unwanted rows after inspecting the new data
+
+new.burglary=melt(Burglary.Final,id="Cluster")
+new.burglary.data=new.burglary[29:98,]
+
+
+# [Step 6] Loading the ggplot2 library and adding details to the plot: create breakpoints on x-axis (each cluster) and labelling them cluster-number[number of nightclubs in that cluster], giving the plot a title and marking each point on each plotline
+
+g=ggplot(new.burglary.data, aes(x = Cluster, y = value, colour = variable)) + geom_line(size=1.25) + ylab(label="Number of crimes (Burglary)") + xlab("Cluster[Number of NightClubs]") 
+g=g + theme(axis.line = element_line(colour = "black"))+scale_x_continuous(breaks=c(1,2,3,4,6,7,8,9,18,22,23,25,26,27), labels = c("1[13]", "2[3]", "3[16]", "4[2]", "6[28]", "7[1]", "8[18]", "9[1]", "18[1]", "22[3]", "23[1]", "25[6]", "26[2]", "27[11]")) + geom_point() + ggtitle("Total number of burglaries in each cluster[number of Night Clubs]")
+
+# [Step 6.1] Modifying the legend (table defining the different line plots) on the right of the plot: creating a background, renaming the variables in the legend for clear understanding
+
+g=g + theme(legend.background = element_rect(fill="gray90", size=.5, linetype="dotted")) + scale_colour_discrete(name  ="Total Number of Burglaries for Each Year", breaks=c("Number.Burglary.2011", "Number.Burglary.2012","Number.Burglary.2013","Number.Burglary.2014","Number.Burglary.2015"), labels=c("2011", "2012","2013","2014","2015")) + scale_shape_discrete(name  ="Total Number of Burglaries for Each Year", breaks=c("Number.Burglary.2011", "Number.Burglary.2012","Number.Burglary.2013","Number.Burglary.2014","Number.Burglary.2015"),labels=c("2011", "2012","2013","2014","2015"))
+
+g=g+theme(legend.position="bottom") + theme(plot.title = element_text(hjust = 0.5)) 
+
+g
+
+# Interpretation: The x axis contains the cluster number with the number of nightclubs in that cluster in the square brackets.
+# Each line graph depicts the number of burglaries in each cluster for a particular year.
+# From the plot, it is clear that a huge number of burglaries occur in cluster 18 and the least in cluster 27. But, there is no 
+# relation between the number of clubs in that cluster and the number of crimes.
+
+# end of Burglary
+
+```
+
+```{r RQ2: Homicide,fig.width=10, fig.height=6}
+# Crime type: Homicide
+
+# [Step 1] Creating a subset of the crime dataset to include data only related to Homicide
+
+homicide.11=subset(Crime_Incidents__2011,OFFENSE=="HOMICIDE")
+homicide.12=subset(Crime_Incidents__2012,OFFENSE=="HOMICIDE")
+homicide.13=subset(Crime_Incidents__2013,OFFENSE=="HOMICIDE")
+homicide.14=subset(Crime_Incidents__2014,OFFENSE=="HOMICIDE")
+homicide.15=subset(Crime_Incidents__2015,OFFENSE=="HOMICIDE")
+
+# [Step 2] Creating a frequency table for all homicides in 2011, classified by cluster
+
+temp.homicide=table(homicide.11$NEIGHBORHOODCLUSTER)
+#temp.homicide
+
+# [Step 3] Merging the crime-dataset with the nightclubs for year-2011 and repeating it for all years 2012-15
+
+homicide.final.dataset=merge(temp_club,temp.homicide,by="Var1")
+#homicide.final.dataset
+names(homicide.final.dataset)=c("Var1", "Number.NightClubs", "Number.Homicide.2011")
+#homicide.final.dataset
+
+# [Step 3.1] Repeating it for all years 2012-15
+
+temp.homicide=table(homicide.12$NEIGHBORHOODCLUSTER)
+homicide.final.dataset=merge(homicide.final.dataset,temp.homicide,by="Var1")
+#homicide.final.dataset
+names(homicide.final.dataset)=c("Var1", "Number.NightClubs", "Number.Homicide.2011","Number.Homicide.2012")
+#homicide.final.dataset
+temp.homicide=table(homicide.13$NEIGHBORHOODCLUSTER)
+homicide.final.dataset=merge(homicide.final.dataset,temp.homicide,by="Var1")
+#homicide.final.dataset
+names(homicide.final.dataset)=c("Var1", "Number.NightClubs", "Number.Homicide.2011","Number.Homicide.2012","Number.Homicide.2013")
+#homicide.final.dataset
+temp.homicide=table(homicide.14$NEIGHBORHOODCLUSTER)
+homicide.final.dataset=merge(homicide.final.dataset,temp.homicide,by="Var1")
+#homicide.final.dataset
+names(homicide.final.dataset)=c("Var1", "Number.NightClubs", "Number.Homicide.2011","Number.Homicide.2012","Number.Homicide.2013","Number.Homicide.2014")
+#homicide.final.dataset
+temp.homicide=table(homicide.15$NEIGHBORHOODCLUSTER)
+homicide.final.dataset=merge(homicide.final.dataset,temp.homicide,by="Var1")
+#homicide.final.dataset
+
+# [Step 4] Renaming the columns of the final dataset and writing it to a csv file
+
+names(homicide.final.dataset)=c("Cluster", "Number.NightClubs", "Number.Homicide.2011","Number.Homicide.2012","Number.Homicide.2013","Number.Homicide.2014","Number.Homicide.2015")
+#homicide.final.dataset
+write.csv(homicide.final.dataset,file="Homicide.Final.csv")
+Homicide.Final <- read.csv("Homicide.Final.csv")
+
+# [Step 5] Removing the unwanted rows after inspecting the new data
+
+new.homicide=melt(Homicide.Final,id="Cluster")
+new.homicide.data=new.homicide[13:42,]
+#new.homicide.data
+
+# [Step 6] Loading the ggplot2 library and adding details to the plot: create breakpoints on x-axis (each cluster) and labelling them cluster-number[number of nightclubs in that cluster], giving the plot a title and marking each point on each plotline
+
+g=ggplot(new.homicide.data, aes(x = Cluster, y = value, colour = variable)) + geom_line(size=1.25) + ylab(label="Number of crimes (Homicide)") + xlab("Cluster[Number of NightClubs]")
+
+g=g + theme(axis.line = element_line(colour = "black"))+scale_x_continuous(breaks=c(2,3,18,22,23,25), labels = c("2[3]", "3[16]", "18[1]", "22[3]", "23[1]", "25[6]")) + geom_point() + ggtitle("Total number of homicides in each cluster[number of Night Clubs]")
+
+# [Step 6.1] Modifying the legend (table defining the different line plots) on the right of the plot: creating a background, renaming the variables in the legend for clear understanding
+
+g=g + theme(legend.background = element_rect(fill="gray90", size=.5, linetype="dotted")) + scale_colour_discrete(name  ="Total Number of Homicides for Each Year", breaks=c("Number.Homicide.2011", "Number.Homicide.2012","Number.Homicide.2013","Number.Homicide.2014","Number.Homicide.2015"), labels=c("2011", "2012","2013","2014","2015")) + scale_shape_discrete(name  ="Total Number of Homicides for Each Year", breaks=c("Number.Homicide.2011", "Number.Homicide.2012","Number.Homicide.2013","Number.Homicide.2014","Number.Homicide.2015"),labels=c("2011", "2012","2013","2014","2015"))
+
+g=g+theme(legend.position="bottom") + theme(plot.title = element_text(hjust = 0.5)) 
+
+g
+
+# Interpretation: The x axis contains the cluster number with the number of nightclubs in that cluster in the square brackets.
+# Each line graph depicts the number of homicides in each cluster for a particular year.
+# From the plot, it is not very clear as to which cluster has the maximum and the minimum number of homicides and if there is any relation between the number of nightclubs and the number of homicides occurig in a particular cluster.
+
+# end of Homicide
+```
+
+```{r RQ2: Motor Vehicle Theft,fig.width=10, fig.height=6}
+
+# Crime type: Motor Vehicle Theft
+
+# [Step 1] Creating a subset of the crime dataset to include data only related to Motor Vehicle Theft
+
+motortheft.11=subset(Crime_Incidents__2011,OFFENSE=="MOTOR VEHICLE THEFT")
+motortheft.12=subset(Crime_Incidents__2012,OFFENSE=="MOTOR VEHICLE THEFT")
+motortheft.13=subset(Crime_Incidents__2013,OFFENSE=="MOTOR VEHICLE THEFT")
+motortheft.14=subset(Crime_Incidents__2014,OFFENSE=="MOTOR VEHICLE THEFT")
+motortheft.15=subset(Crime_Incidents__2015,OFFENSE=="MOTOR VEHICLE THEFT")
+
+# [Step 2] Creating a frequency table for all motor thefts in 2011, classified by cluster
+
+temp.motortheft=table(motortheft.11$NEIGHBORHOODCLUSTER)
+
+# [Step 3] Merging the crime-dataset with the nightclubs for year-2011 and repeating it for all years 2012-15
+
+motortheft.final.dataset=merge(temp_club,temp.motortheft,by="Var1")
+names(motortheft.final.dataset)=c("Var1", "Number.NightClubs", "Number.MotorTheft.2011")
+
+# [Step 3.1] Repeating it for all years 2012-15
+
+temp.motortheft=table(motortheft.12$NEIGHBORHOODCLUSTER)
+motortheft.final.dataset=merge(motortheft.final.dataset,temp.motortheft,by="Var1")
+names(motortheft.final.dataset)=c("Var1", "Number.NightClubs", "Number.MotorTheft.2011","Number.MotorTheft.2012")
+
+temp.motortheft=table(motortheft.13$NEIGHBORHOODCLUSTER)
+motortheft.final.dataset=merge(motortheft.final.dataset,temp.motortheft,by="Var1")
+
+names(motortheft.final.dataset)=c("Var1", "Number.NightClubs", "Number.MotorTheft.2011","Number.MotorTheft.2012","Number.MotorTheft.2013")
+
+temp.motortheft=table(motortheft.14$NEIGHBORHOODCLUSTER)
+motortheft.final.dataset=merge(motortheft.final.dataset,temp.motortheft,by="Var1")
+
+names(motortheft.final.dataset)=c("Var1", "Number.NightClubs", "Number.MotorTheft.2011","Number.MotorTheft.2012","Number.MotorTheft.2013","Number.MotorTheft.2014")
+
+temp.motortheft=table(motortheft.15$NEIGHBORHOODCLUSTER)
+motortheft.final.dataset=merge(motortheft.final.dataset,temp.motortheft,by="Var1")
+
+
+# [Step 4] Renaming the columns of the final dataset and writing it to a csv file
+
+names(motortheft.final.dataset)=c("Cluster", "Number.NightClubs", "Number.MotorTheft.2011","Number.MotorTheft.2012","Number.MotorTheft.2013","Number.MotorTheft.2014","Number.MotorTheft.2015")
+
+write.csv(motortheft.final.dataset,file="MotorTheft.Final.csv")
+MotorTheft.Final <- read.csv("MotorTheft.Final.csv")
+
+# [Step 5] Removing the unwanted rows after inspecting the new data
+
+new.motortheft=melt(MotorTheft.Final,id="Cluster")
+new.motortheft.data=new.motortheft[29:98,]
+
+
+# [Step 6] Loading the ggplot2 library and adding details to the plot: create breakpoints on x-axis (each cluster) and labelling them cluster-number[number of nightclubs in that cluster], giving the plot a title and marking each point on each plotline
+
+g=ggplot(new.motortheft.data, aes(x = Cluster, y = value, colour = variable)) + geom_line(size=1.25)+ylab(label="Number of crimes (MotorTheft)") + xlab("Cluster[Number of NightClubs]") 
+
+
+g=g + theme(axis.line = element_line(colour = "black"))+scale_x_continuous(breaks=c(1,2,3,4,6,7,8,9,18,22,23,25,26,27), labels = c("1[13]", "2[3]", "3[16]", "4[2]", "6[28]", "7[1]", "8[18]", "9[1]", "18[1]", "22[3]", "23[1]", "25[6]", "26[2]", "27[11]")) + geom_point() + ggtitle("Total number of motor thefts in each cluster[number of Night Clubs]")
+
+# [Step 6.1] Modifying the legend (table defining the different line plots) on the right of the plot: creating a background, renaming the variables in the legend for clear understanding
+
+g=g + theme(legend.background = element_rect(fill="gray90", size=.5, linetype="dotted")) + scale_colour_discrete(name  ="Total Number of MotorThefts for Each Year", breaks=c("Number.MotorTheft.2011", "Number.MotorTheft.2012","Number.MotorTheft.2013","Number.MotorTheft.2014","Number.MotorTheft.2015"), labels=c("2011", "2012","2013","2014","2015")) + scale_shape_discrete(name  ="Total Number of MotorThefts for Each Year", breaks=c("Number.MotorTheft.2011", "Number.MotorTheft.2012","Number.MotorTheft.2013","Number.MotorTheft.2014","Number.MotorTheft.2015"),labels=c("2011", "2012","2013","2014","2015"))
+
+g=g+theme(legend.position="bottom") + theme(plot.title = element_text(hjust = 0.5)) 
+
+g
+
+# Interpretation: The x axis contains the cluster number with the number of nightclubs in that cluster in the square brackets.
+# Each line graph depicts the number of motor thefts in each cluster for a particular year.
+# From the plot, it is clear that there is no clear relation between the number of clubs in that cluster and the number of motor thefts in a cluster.
+
+# end of MotorTheft
+
+
+```
+
+```{r RQ2: Robbery,fig.width=10, fig.height=6}
+# Crime type: Robbery
+
+# [Step 1] Creating a subset of the crime dataset to include data only related to Robbery
+
+robbery.11=subset(Crime_Incidents__2011,OFFENSE=="ROBBERY")
+robbery.12=subset(Crime_Incidents__2012,OFFENSE=="ROBBERY")
+robbery.13=subset(Crime_Incidents__2013,OFFENSE=="ROBBERY")
+robbery.14=subset(Crime_Incidents__2014,OFFENSE=="ROBBERY")
+robbery.15=subset(Crime_Incidents__2015,OFFENSE=="ROBBERY")
+
+# [Step 2] Creating a frequency table for all robberies in 2011, classified by cluster
+
+temp.robbery=table(robbery.11$NEIGHBORHOODCLUSTER)
+
+# [Step 3] Merging the crime-dataset with the nightclubs for year-2011 and repeating it for all years 2012-15
+
+robbery.final.dataset=merge(temp_club,temp.robbery,by="Var1")
+names(robbery.final.dataset)=c("Var1", "Number.NightClubs", "Number.Robbery.2011")
+
+# [Step 3.1] Repeating it for all years 2012-15
+
+temp.robbery=table(robbery.12$NEIGHBORHOODCLUSTER)
+robbery.final.dataset=merge(robbery.final.dataset,temp.robbery,by="Var1")
+names(robbery.final.dataset)=c("Var1", "Number.NightClubs", "Number.Robbery.2011","Number.Robbery.2012")
+
+temp.robbery=table(robbery.13$NEIGHBORHOODCLUSTER)
+robbery.final.dataset=merge(robbery.final.dataset,temp.robbery,by="Var1")
+
+names(robbery.final.dataset)=c("Var1", "Number.NightClubs", "Number.Robbery.2011","Number.Robbery.2012","Number.Robbery.2013")
+
+temp.robbery=table(robbery.14$NEIGHBORHOODCLUSTER)
+robbery.final.dataset=merge(robbery.final.dataset,temp.robbery,by="Var1")
+
+names(robbery.final.dataset)=c("Var1", "Number.NightClubs", "Number.Robbery.2011","Number.Robbery.2012","Number.Robbery.2013","Number.Robbery.2014")
+
+temp.robbery=table(robbery.15$NEIGHBORHOODCLUSTER)
+robbery.final.dataset=merge(robbery.final.dataset,temp.robbery,by="Var1")
+
+
+# [Step 4] Renaming the columns of the final dataset and writing it to a csv file
+
+names(robbery.final.dataset)=c("Cluster", "Number.NightClubs", "Number.Robbery.2011","Number.Robbery.2012","Number.Robbery.2013","Number.Robbery.2014","Number.Robbery.2015")
+
+write.csv(robbery.final.dataset,file="Robbery.Final.csv")
+Robbery.Final <- read.csv("Robbery.Final.csv")
+
+# [Step 5] Removing the unwanted rows after inspecting the new data
+
+new.robbery=melt(Robbery.Final,id="Cluster")
+new.robbery.data=new.robbery[29:98,]
+
+# [Step 6] Loading the ggplot2 library and adding details to the plot: create breakpoints on x-axis (each cluster) and labelling them cluster-number[number of nightclubs in that cluster], giving the plot a title and marking each point on each plotline
+
+g=ggplot(new.robbery.data, aes(x = Cluster, y = value, colour = variable)) + geom_line(size=1.25) + ylab(label="Number of crimes (Robbery)") + xlab("Cluster[Number of NightClubs]") 
+
+g=g + theme(axis.line = element_line(colour = "black"))+scale_x_continuous(breaks=c(1,2,3,4,6,7,8,9,18,22,23,25,26,27), labels = c("1[13]", "2[3]", "3[16]", "4[2]", "6[28]", "7[1]", "8[18]", "9[1]", "18[1]", "22[3]", "23[1]", "25[6]", "26[2]", "27[11]")) + geom_point() + ggtitle("Total number of robberies in each cluster[number of Night Clubs]")
+
+# [Step 6.1] Modifying the legend (table defining the different line plots) on the right of the plot: creating a background, renaming the variables in the legend for clear understanding
+
+g=g + theme(legend.background = element_rect(fill="gray90", size=.5, linetype="dotted")) + scale_colour_discrete(name  ="Total Number of Robberies for Each Year", breaks=c("Number.Robbery.2011", "Number.Robbery.2012","Number.Robbery.2013","Number.Robbery.2014","Number.Robbery.2015"), labels=c("2011", "2012","2013","2014","2015")) + scale_shape_discrete(name  ="Total Number of Robberys for Each Year", breaks=c("Number.Robbery.2011", "Number.Robbery.2012","Number.Robbery.2013","Number.Robbery.2014","Number.Robbery.2015"),labels=c("2011", "2012","2013","2014","2015"))
+
+g=g+theme(legend.position="bottom") + theme(plot.title = element_text(hjust = 0.5)) 
+
+g
+
+# Interpretation: The x axis contains the cluster number with the number of nightclubs in that cluster in the square brackets.
+# Each line graph depicts the number of robberies in each cluster for a particular year.
+# From the plot, it is clear that a huge number of robberies occur in cluster 2 and the very less in cluster 27. But, there is no 
+# relation between the number of clubs in that cluster and the number of crimes.
+
+# end of Robbery
+
+```
+
+```{r RQ2: Sex Abuse,fig.width=10, fig.height=6}
+# Crime type: Sex Abuse
+
+# [Step 1] Creating a subset of the crime dataset to include data only related to Sex Abuse
+
+sexabuse.11=subset(Crime_Incidents__2011,OFFENSE=="SEX ABUSE")
+sexabuse.12=subset(Crime_Incidents__2012,OFFENSE=="SEX ABUSE")
+sexabuse.13=subset(Crime_Incidents__2013,OFFENSE=="SEX ABUSE")
+sexabuse.14=subset(Crime_Incidents__2014,OFFENSE=="SEX ABUSE")
+sexabuse.15=subset(Crime_Incidents__2015,OFFENSE=="SEX ABUSE")
+
+# [Step 2] Creating a frequency table for all sex abuse cases in 2011, classified by cluster
+
+temp.sexabuse=table(sexabuse.11$NEIGHBORHOODCLUSTER)
+
+# [Step 3] Merging the crime-dataset with the nightclubs for year-2011 and repeating it for all years 2012-15
+
+sexabuse.final.dataset=merge(temp_club,temp.sexabuse,by="Var1")
+names(sexabuse.final.dataset)=c("Var1", "Number.NightClubs", "Number.SexAbuse.2011")
+
+# [Step 3.1] Repeating it for all years 2012-15
+
+temp.sexabuse=table(sexabuse.12$NEIGHBORHOODCLUSTER)
+sexabuse.final.dataset=merge(sexabuse.final.dataset,temp.sexabuse,by="Var1")
+names(sexabuse.final.dataset)=c("Var1", "Number.NightClubs", "Number.SexAbuse.2011","Number.SexAbuse.2012")
+
+temp.sexabuse=table(sexabuse.13$NEIGHBORHOODCLUSTER)
+sexabuse.final.dataset=merge(sexabuse.final.dataset,temp.sexabuse,by="Var1")
+
+names(sexabuse.final.dataset)=c("Var1", "Number.NightClubs", "Number.SexAbuse.2011","Number.SexAbuse.2012","Number.SexAbuse.2013")
+
+temp.sexabuse=table(sexabuse.14$NEIGHBORHOODCLUSTER)
+sexabuse.final.dataset=merge(sexabuse.final.dataset,temp.sexabuse,by="Var1")
+
+names(sexabuse.final.dataset)=c("Var1", "Number.NightClubs", "Number.SexAbuse.2011","Number.SexAbuse.2012","Number.SexAbuse.2013","Number.SexAbuse.2014")
+
+temp.sexabuse=table(sexabuse.15$NEIGHBORHOODCLUSTER)
+sexabuse.final.dataset=merge(sexabuse.final.dataset,temp.sexabuse,by="Var1")
+
+
+# [Step 4] Renaming the columns of the final dataset and writing it to a csv file
+
+names(sexabuse.final.dataset)=c("Cluster", "Number.NightClubs", "Number.SexAbuse.2011","Number.SexAbuse.2012","Number.SexAbuse.2013","Number.SexAbuse.2014","Number.SexAbuse.2015")
+
+write.csv(sexabuse.final.dataset,file="SexAbuse.Final.csv")
+SexAbuse.Final <- read.csv("SexAbuse.Final.csv")
+
+# [Step 5] Removing the unwanted rows after inspecting the new data
+
+new.sexabuse=melt(SexAbuse.Final,id="Cluster")
+new.sexabuse.data=new.sexabuse[25:84,]
+
+# [Step 6] Loading the ggplot2 library and adding details to the plot: create breakpoints on x-axis (each cluster) and labelling them cluster-number[number of nightclubs in that cluster], giving the plot a title and marking each point on each plotline
+
+g=ggplot(new.sexabuse.data, aes(x = Cluster, y = value, colour = variable)) + geom_line(size=1.25) + ylab(label="Number of crimes (SexAbuse)") + xlab("Cluster[Number of NightClubs]") 
+
+g=g + theme(axis.line = element_line(colour = "black"))+scale_x_continuous(breaks=c(1,2,3,4,6,7,8,18,22,23,25,26), labels = c("1[13]", "2[3]", "3[16]", "4[2]", "6[28]", "7[1]", "8[18]", "18[1]", "22[3]", "23[1]", "25[6]", "26[2]")) + geom_point() + ggtitle("Total number of sex abuse cases in each cluster[number of Night Clubs]")
+
+# [Step 6.1] Modifying the legend (table defining the different line plots) on the right of the plot: creating a background, renaming the variables in the legend for clear understanding
+
+g=g + theme(legend.background = element_rect(fill="gray90", size=.5, linetype="dotted")) + scale_colour_discrete(name  ="Total Number of Sex Abuse cases for Each Year", breaks=c("Number.SexAbuse.2011", "Number.SexAbuse.2012","Number.SexAbuse.2013","Number.SexAbuse.2014","Number.SexAbuse.2015"), labels=c("2011", "2012","2013","2014","2015")) + scale_shape_discrete(name  ="Total Number of Sex Abuse cases for Each Year", breaks=c("Number.SexAbuse.2011", "Number.SexAbuse.2012","Number.SexAbuse.2013","Number.SexAbuse.2014","Number.SexAbuse.2015"),labels=c("2011", "2012","2013","2014","2015"))
+
+g=g+theme(legend.position="bottom") + theme(plot.title = element_text(hjust = 0.5)) 
+
+g
+
+# Interpretation: The x axis contains the cluster number with the number of nightclubs in that cluster in the square brackets.
+# Each line graph depicts the number of sex abuse cases in each cluster for a particular year.
+# From the plot, it is clear that there is no clear relation between the number of clubs in that cluster and the number of sex abuses cases in a cluster.
+
+# end of SexAbuse
+
+
+
+```
+
+```{r RQ2: Auto Theft,fig.width=10, fig.height=6}
+# Crime type: Auto Theft
+
+# [Step 1] Creating a subset of the crime dataset to include data only related to Auto Theft
+
+autotheft.11=subset(Crime_Incidents__2011,OFFENSE=="THEFT F/AUTO")
+autotheft.12=subset(Crime_Incidents__2012,OFFENSE=="THEFT F/AUTO")
+autotheft.13=subset(Crime_Incidents__2013,OFFENSE=="THEFT F/AUTO")
+autotheft.14=subset(Crime_Incidents__2014,OFFENSE=="THEFT F/AUTO")
+autotheft.15=subset(Crime_Incidents__2015,OFFENSE=="THEFT F/AUTO")
+
+# [Step 2] Creating a frequency table for all auto theft cases in 2011, classified by cluster
+
+temp.autotheft=table(autotheft.11$NEIGHBORHOODCLUSTER)
+
+# [Step 3] Merging the crime-dataset with the nightclubs for year-2011 and repeating it for all years 2012-15
+
+autotheft.final.dataset=merge(temp_club,temp.autotheft,by="Var1")
+names(autotheft.final.dataset)=c("Var1", "Number.NightClubs", "Number.AutoTheft.2011")
+
+# [Step 3.1] Repeating it for all years 2012-15
+
+temp.autotheft=table(autotheft.12$NEIGHBORHOODCLUSTER)
+autotheft.final.dataset=merge(autotheft.final.dataset,temp.autotheft,by="Var1")
+names(autotheft.final.dataset)=c("Var1", "Number.NightClubs", "Number.AutoTheft.2011","Number.AutoTheft.2012")
+
+temp.autotheft=table(autotheft.13$NEIGHBORHOODCLUSTER)
+autotheft.final.dataset=merge(autotheft.final.dataset,temp.autotheft,by="Var1")
+
+names(autotheft.final.dataset)=c("Var1", "Number.NightClubs", "Number.AutoTheft.2011","Number.AutoTheft.2012","Number.AutoTheft.2013")
+
+temp.autotheft=table(autotheft.14$NEIGHBORHOODCLUSTER)
+autotheft.final.dataset=merge(autotheft.final.dataset,temp.autotheft,by="Var1")
+
+names(autotheft.final.dataset)=c("Var1", "Number.NightClubs", "Number.AutoTheft.2011","Number.AutoTheft.2012","Number.AutoTheft.2013","Number.AutoTheft.2014")
+
+temp.autotheft=table(autotheft.15$NEIGHBORHOODCLUSTER)
+autotheft.final.dataset=merge(autotheft.final.dataset,temp.autotheft,by="Var1")
+
+
+# [Step 4] Renaming the columns of the final dataset and writing it to a csv file
+
+names(autotheft.final.dataset)=c("Cluster", "Number.NightClubs", "Number.AutoTheft.2011","Number.AutoTheft.2012","Number.AutoTheft.2013","Number.AutoTheft.2014","Number.AutoTheft.2015")
+
+write.csv(autotheft.final.dataset,file="AutoTheft.Final.csv")
+AutoTheft.Final <- read.csv("AutoTheft.Final.csv")
+
+# [Step 5] Removing the unwanted rows after inspecting the new data
+
+new.autotheft=melt(AutoTheft.Final,id="Cluster")
+new.autotheft.data=new.autotheft[29:98,]
+
+# [Step 6] Loading the ggplot2 library and adding details to the plot: create breakpoints on x-axis (each cluster) and labelling them cluster-number[number of nightclubs in that cluster], giving the plot a title and marking each point on each plotline
+
+g=ggplot(new.autotheft.data, aes(x = Cluster, y = value, colour = variable)) + geom_line(size=1.25) + ylab(label="Number of crimes (AutoTheft)") + xlab("Cluster[Number of NightClubs]") 
+
+g=g + theme(axis.line = element_line(colour = "black"))+scale_x_continuous(breaks=c(1,2,3,4,6,7,8,9,18,22,23,25,26,27), labels = c("1[13]", "2[3]", "3[16]", "4[2]", "6[28]", "7[1]", "8[18]", "9[1]", "18[1]", "22[3]", "23[1]", "25[6]", "26[2]", "27[11]")) + geom_point() + ggtitle("Total number of auto theft cases in each cluster[number of Night Clubs]")
+
+# [Step 6.1] Modifying the legend (table defining the different line plots) on the right of the plot: creating a background, renaming the variables in the legend for clear understanding
+
+g=g + theme(legend.background = element_rect(fill="gray90", size=.5, linetype="dotted")) + scale_colour_discrete(name  ="Total Number of Auto Theft cases for Each Year", breaks=c("Number.AutoTheft.2011", "Number.AutoTheft.2012","Number.AutoTheft.2013","Number.AutoTheft.2014","Number.AutoTheft.2015"), labels=c("2011", "2012","2013","2014","2015")) + scale_shape_discrete(name  ="Total Number of Auto Theft cases for Each Year", breaks=c("Number.AutoTheft.2011", "Number.AutoTheft.2012","Number.AutoTheft.2013","Number.AutoTheft.2014","Number.AutoTheft.2015"),labels=c("2011", "2012","2013","2014","2015"))
+
+g=g+theme(legend.position="bottom") + theme(plot.title = element_text(hjust = 0.5)) 
+
+g
+
+# Interpretation: The x axis contains the cluster number with the number of nightclubs in that cluster in the square brackets.
+# Each line graph depicts the number of auto thefts in each cluster for a particular year.
+# From the plot, it is clear that a huge number of auto thefts occur in cluster 2 and the least in cluster 27. But, there is no 
+# relation between the number of clubs in that cluster and the number of crimes.
+
+# end of AutoTheft
+
+```
+
+```{r RQ2: Other Theft,fig.width=10, fig.height=6}
+# Crime type: Other Theft
+
+# [Step 1] Creating a subset of the crime dataset to include data only related to Other Theft
+
+othertheft.11=subset(Crime_Incidents__2011,OFFENSE=="THEFT/OTHER")
+othertheft.12=subset(Crime_Incidents__2012,OFFENSE=="THEFT/OTHER")
+othertheft.13=subset(Crime_Incidents__2013,OFFENSE=="THEFT/OTHER")
+othertheft.14=subset(Crime_Incidents__2014,OFFENSE=="THEFT/OTHER")
+othertheft.15=subset(Crime_Incidents__2015,OFFENSE=="THEFT/OTHER")
+
+# [Step 2] Creating a frequency table for all other theft cases in 2011, classified by cluster
+
+temp.othertheft=table(othertheft.11$NEIGHBORHOODCLUSTER)
+
+# [Step 3] Merging the crime-dataset with the nightclubs for year-2011 and repeating it for all years 2012-15
+
+othertheft.final.dataset=merge(temp_club,temp.othertheft,by="Var1")
+names(othertheft.final.dataset)=c("Var1", "Number.NightClubs", "Number.OtherTheft.2011")
+
+# [Step 3.1] Repeating it for all years 2012-15
+
+temp.othertheft=table(othertheft.12$NEIGHBORHOODCLUSTER)
+othertheft.final.dataset=merge(othertheft.final.dataset,temp.othertheft,by="Var1")
+names(othertheft.final.dataset)=c("Var1", "Number.NightClubs", "Number.OtherTheft.2011","Number.OtherTheft.2012")
+
+temp.othertheft=table(othertheft.13$NEIGHBORHOODCLUSTER)
+othertheft.final.dataset=merge(othertheft.final.dataset,temp.othertheft,by="Var1")
+
+names(othertheft.final.dataset)=c("Var1", "Number.NightClubs", "Number.OtherTheft.2011","Number.OtherTheft.2012","Number.OtherTheft.2013")
+
+temp.othertheft=table(othertheft.14$NEIGHBORHOODCLUSTER)
+othertheft.final.dataset=merge(othertheft.final.dataset,temp.othertheft,by="Var1")
+
+names(othertheft.final.dataset)=c("Var1", "Number.NightClubs", "Number.OtherTheft.2011","Number.OtherTheft.2012","Number.OtherTheft.2013","Number.OtherTheft.2014")
+
+temp.othertheft=table(othertheft.15$NEIGHBORHOODCLUSTER)
+othertheft.final.dataset=merge(othertheft.final.dataset,temp.othertheft,by="Var1")
+
+
+# [Step 4] Renaming the columns of the final dataset and writing it to a csv file
+
+names(othertheft.final.dataset)=c("Cluster", "Number.NightClubs", "Number.OtherTheft.2011","Number.OtherTheft.2012","Number.OtherTheft.2013","Number.OtherTheft.2014","Number.OtherTheft.2015")
+
+write.csv(othertheft.final.dataset,file="OtherTheft.Final.csv")
+OtherTheft.Final <- read.csv("OtherTheft.Final.csv")
+
+# [Step 5] Removing the unwanted rows after inspecting the new data
+
+new.othertheft=melt(OtherTheft.Final,id="Cluster")
+new.othertheft.data=new.othertheft[29:98,]
+
+# [Step 6] Loading the ggplot2 library and adding details to the plot: create breakpoints on x-axis (each cluster) and labelling them cluster-number[number of nightclubs in that cluster], giving the plot a title and marking each point on each plotline
+
+g=ggplot(new.othertheft.data, aes(x = Cluster, y = value, colour = variable)) + geom_line(size=1.25) + ylab(label="Number of crimes (OtherTheft)") + xlab("Cluster[Number of NightClubs]") 
+
+g=g + theme(axis.line = element_line(colour = "black"))+scale_x_continuous(breaks=c(1,2,3,4,6,7,8,9,18,22,23,25,26,27), labels = c("1[13]", "2[3]", "3[16]", "4[2]", "6[28]", "7[1]", "8[18]", "9[1]", "18[1]", "22[3]", "23[1]", "25[6]", "26[2]", "27[11]")) + geom_point() + ggtitle("Total number of other theft cases in each cluster[number of Night Clubs]")
+
+# [Step 6.1] Modifying the legend (table defining the different line plots) on the right of the plot: creating a background, renaming the variables in the legend for clear understanding
+
+g=g + theme(legend.background = element_rect(fill="gray90", size=.5, linetype="dotted")) + scale_colour_discrete(name  ="Total Number of Auto Theft cases for Each Year", breaks=c("Number.OtherTheft.2011", "Number.OtherTheft.2012","Number.OtherTheft.2013","Number.OtherTheft.2014","Number.OtherTheft.2015"), labels=c("2011", "2012","2013","2014","2015")) + scale_shape_discrete(name  ="Total Number of Auto Theft cases for Each Year", breaks=c("Number.OtherTheft.2011", "Number.OtherTheft.2012","Number.OtherTheft.2013","Number.OtherTheft.2014","Number.OtherTheft.2015"),labels=c("2011", "2012","2013","2014","2015"))
+
+g=g+theme(legend.position="bottom") + theme(plot.title = element_text(hjust = 0.5)) 
+
+g
+
+# Interpretation: The x axis contains the cluster number with the number of nightclubs in that cluster in the square brackets.
+# Each line graph depicts the number of other thefts in each cluster for a particular year.
+# From the plot, it is clear that a huge number of other thefts occur in cluster 8 and the least in cluster 27. But, there is no 
+# relation between the number of clubs in that cluster and the number of crimes.
+
+# end of Other Theft
+
+
+```
+
+Research Question:[3]    Is there a spike in the crime rate during major public holidays?
+Description: We are analyzing the crime rate during the public holidays to check if there is a spike. We are further drilling down to specific types of crimes (eg: burgary, theft, etc) to figure out trends. Simple t-tests are carried out for basic analysis.
+Datasets: (1) Crime_Incidents_year(2011-2015)- all details about crimes for each year
+(2) Holidays- list of public holidays for United States of  America for the years (2011-2015    )
+NOTE: The above mentioned datasets are the ones we created after data-cleaning phase.
+Columns/Attributes used: REPORTDATETIME, START_DATE, END_DATE in dataset (1), Date in dataset(2)
+```{r RQ3 Creating the FinalDataSet.csv}
+#loading all datasets
+Crime_Data_2011 <- read.csv("Crime_Data_2011.csv")
+Crime_Data_2012 <- read.csv("Crime_Data_2012.csv")
+Crime_Data_2013 <- read.csv("Crime_Data_2013.csv")
+Crime_Data_2014 <- read.csv("Crime_Data_2014.csv")
+Crime_Data_2015 <- read.csv("Crime_Data_2015.csv")
+
+#Appending all datasets into one
+FinalDataSet <- rbind.data.frame(Crime_Data_2011, Crime_Data_2012, Crime_Data_2013, Crime_Data_2014, Crime_Data_2015)
+
+
+```
+
+Some manipulations were performed on the FinalDataSet thus obtained. Date and Time columns were segregated from  a single TimeStamp column and were given proper formats.
+```{r Cleaning and manipulating Date-Time Data}
+
+FinalDataSet <- separate(FinalDataSet, REPORTDATETIME, c("Date", "Time"), sep = "T")
+
+
+#Converting Date column to proper format
+#class(FinalDataSet$Date)
+FinalDataSet$Date <- as.Date(FinalDataSet$Date)
+#class(FinalDataSet$Date)
+
+#Segregating the START_DATE AND END_DATE column, having timestamp into StartDate and EndDate columns without Timestamp
+FinalDataSet <- separate(FinalDataSet, START_DATE , c("StartDate", "Time1"), sep = "T")
+FinalDataSet <- separate(FinalDataSet, END_DATE, c("EndDate", "Time2"), sep = "T")
+
+
+#Converting the StartDate and EndDate into Date format
+FinalDataSet$StartDate <- as.Date(FinalDataSet$StartDate)
+FinalDataSet$EndDate <- as.Date(FinalDataSet$EndDate)
+```
+
+After getting the required date, time and other necessary columns all the columns that were not required had to be deleted. A copy of the cleansed data was saved on the local system.
+```{r Removing unnecessary columns and making a copy of cleansed data }
+#removing all the unnecessary columns from the dataset
+FinalDataSet$X <- NULL
+FinalDataSet$Y <- NULL
+FinalDataSet$OBJECTID <- NULL
+FinalDataSet$CCN <- NULL
+FinalDataSet$BLOCKXCOORD <- NULL
+FinalDataSet$BLOCKYCOORD <- NULL
+FinalDataSet$ANC <- NULL
+FinalDataSet$DISTRICT <- NULL
+FinalDataSet$PSA <- NULL
+FinalDataSet$BUSINESSIMPROVEMENTDISTRICT <- NULL
+FinalDataSet$BLOCK_GROUP <-NULL
+FinalDataSet$CENSUS_TRACT <- NULL
+FinalDataSet$VOTING_PRECINCT <- NULL
+
+FinalDataSet <-  na.omit(FinalDataSet)
+
+#writing the FinalDataSet as a csv file
+#write.csv(FinalDataSet, file = "HolidayCrimeData.csv")
+
+```
+Next, a new column stating the duration of the crimes was added to the dataset.The FinalDataSet had the columns "StartDate and an "EndDate". A new column was created with the name "DurationInDays" which had the difference of "StartDate" and "EndDate". Later on, the column "DurationInDays" was formatted to numeric for easy manipulation.
+```{r Finding the duration of Crimes, fig.width=8, fig.height=6}
+
+#Calculating the duration of crime
+FinalDataSet$DurationInDays <- FinalDataSet$EndDate - FinalDataSet$StartDate
+class(FinalDataSet$DurationInDays)
+FinalDataSet$DurationNumeric <- as.numeric(FinalDataSet$DurationInDays)
+FinalDataSet$DurationInDays <- NULL
+
+
+g <- ggplot(FinalDataSet, aes(x = DurationNumeric)) + geom_histogram(aes(), binwidth = 1)
+g + scale_x_continuous(breaks = seq(0, 7, by = 1), labels = comma) +  scale_y_continuous(labels = comma) + xlab("Duration of crimes in days") + ylab("Number of crime occurences") +labs(title = "Duration of Crimes and their frequency")
+#hist(FinalDataSet$DurationNumeric)
+```
+For the purpose of analysis only those crimes were considered which had a duration, i.e. EndDate - StartDate, less than or equal to 7(the length of a week). Their difference denotes the time-period during which the crime could have occured. In this analysis I am assuming that the Holiday's effect on crime rates, if any, would be on the weeks adjacent to the holiday. Hence, nothing conclusive can be said about the effect of holiday's on crimes that had a duration greater than 7 days.
+
+```{r Spotting and Removing the outliers}
+
+#sorting the StartDate of crime in ascending order
+FinalDataSet <- FinalDataSet[order(FinalDataSet$StartDate),]
+min(FinalDataSet$StartDate, na.rm = TRUE) 
+FinalDataSet <- FinalDataSet[order(FinalDataSet$DurationNumeric),]
+
+#Detecting outliers
+summary(FinalDataSet$DurationNumeric)
+#the value of duration of crimes range from -1659 days to 328700 days with dates from the year 1800 to 2911
+#indicating that there are a lot of incorrect data
+
+#Removing the outliers and keeping only the relevant values
+#Keeping only those crime details for which duration was less than 7 days
+FinalDataSet <- FinalDataSet[FinalDataSet$DurationNumeric <= 7 & FinalDataSet$DurationNumeric >= 0 & FinalDataSet$EndDate > as.Date("2011-01-01"),]
+#write.csv(FinalDataSet, file = "FinalDataSet.csv", row.names = FALSE)
+
+#removing the missing values
+FinalDataSet <- na.omit(FinalDataSet)
+dim(FinalDataSet)
+table(FinalDataSet$OFFENSE)
+
+```
+A new column "WeekNo" was added which contained the weeks corresponding to the "StartDate" for each crime.
+
+```{r Grouping the days into weeks}
+#grouping the days into weeks
+FinalDataSet$WeekNo <- format(FinalDataSet$EndDate, "%U")
+FinalDataSet$WeekNo <- as.numeric(FinalDataSet$WeekNo)
+#class(FinalDataSet$WeekNo)
+```
+The second dataset containing the infrmation about all the holidays relevent to Washington DC wass imported. Relevant data-cleaning operations were performed on it.  A new column "Holidayweek" was added indicating the week no of each holiday. This "Holidayweek" would be used for analysing both the dataset.
+```{r }
+#importing the holidays dataset
+Holidays <- read.csv("Holidays_Data.csv")
+#class(Holidays$Date)
+Holidays$Date <- as.Date(Holidays$Date)
+Holidays$WeekNo <- format(Holidays$Date, "%U")
+#class(Holidays$WeekNo)
+
+#converting HolidaysWeek to numeric
+Holidays$WeekNo <- as.numeric(Holidays$WeekNo)
+```
+
+For a better insight into the effect of crimes the FinalDataSet wass categorized into several other subsets depending on the type of offenses(Robbery, Theft etc)
+```{r Subsetting different categories of crime}
+table(FinalDataSet$OFFENSE)
+ArsonSet <- subset(FinalDataSet, FinalDataSet$OFFENSE == "ARSON")
+AssaultSet <- subset(FinalDataSet, FinalDataSet$OFFENSE == "ASSAULT W/DANGEROUS WEAPON")
+BurglarySet <- subset(FinalDataSet, FinalDataSet$OFFENSE == "BURGLARY")
+HomicideSet <- subset(FinalDataSet, FinalDataSet$OFFENSE == "HOMICIDE")
+MotorTheftSet <- subset(FinalDataSet, FinalDataSet$OFFENSE == "MOTOR VEHICLE THEFT")
+RobberySet <- subset(FinalDataSet, FinalDataSet$OFFENSE == "ROBBERY")
+SexAbuseSet <- subset(FinalDataSet, FinalDataSet$OFFENSE == "SEX ABUSE")
+TheftSet <- subset(FinalDataSet, FinalDataSet$OFFENSE == "THEFT/OTHER")
+TheftAutoSet <- subset(FinalDataSet, FinalDataSet$OFFENSE == "THEFT F/AUTO")
+```
+Both the "FinalDataSet" and "Holidays" were combined on the basis of "WeekNo" which, for the "FinalDataSet" had the week in which the crime was committed and the week in which the holiday was observed from the "Holidays" dataset. Two sample t-test were performed on the various datasets. The first sample consisted of the crime rates during holidays an the second consisted of crime rates during regular days (excluding holidays).
+
+
+We then created a ggplot so that we can percieve the effects graphically
+```{r Final ggplots, fig.width= 10, fig.height= 5}
+
+a <- ggplot(FinalDataSet, aes(WeekNo))
+##problem with binwidth
+c <- a + geom_freqpoly(aes(col = OFFENSE), lwd = 1, binwidth = 1) + geom_vline(Holidays, aes(X =Holidays$WeekNo), xintercept = Holidays$WeekNo)
+c + scale_x_continuous(breaks = round(seq(0,54,by = 2))) + xlab("Week Number") + ylab("Crime Occurances") + labs(title = "Effect of holidays on crime rates")
+```
+From the graph it is somewhat apparent that there is some kind of relation between the crime occurences and he holiday's weeks(shown by the black vertical lines here). The crime rates either go up or down during these weeks.
+
+Moreover, the crimes are exceptionally low during the Christmas and New Year weeks(the weeks 0,1,52,53). It could well be that, since, people are generally in their homes, the criminals may be less willing to break into someone's house or commit any crime on a whole.
+
+
+
+ 
