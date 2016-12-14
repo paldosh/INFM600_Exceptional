@@ -1,6 +1,6 @@
-This repository is for INFM 600 course project for Team Excceptional.
+This repository is for INFM 600 course project for Team Exceptional.
 
 Team Members:
-Pal 
-Rahul
-David
+Pal Doshi
+Rahul Bahadur
+Yuheng Zhang
