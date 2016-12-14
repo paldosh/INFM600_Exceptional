@@ -1,6 +1,6 @@
 # INFM600 Information Environment[Team Exceptional]
 # Document: R Script
-# Date: 16 November 2016
+# Date: 10 December 2016
 
 # Document Structure: We have three research questions. This document contains three separate scripts for each question.
 
@@ -13,139 +13,212 @@
 # Columns/Attributes used: REPORTDATENAME, OFFENSE,START_DATE,MaxTemp,MinTemp,RangeTemp
 # Packages: plyr, ggplot2
 
-#Reading the dataset into RStudio
-data=read.csv(file="Weather_Crime_Incidents2011-15.csv", header=TRUE, sep=",")
+# [Step 0] Reading the dataset into RStudio
+data= read.csv(file.choose())
 
 #Load support libraries
 # Load rename function
 library(plyr)
 # Load plot function
 library(ggplot2)
+# Load xkcd 
+library(xkcd)
+library(extrafont)
 
+# XKCD theme
+theme_xkcd <- theme(
+  panel.background = element_rect(fill="white"),
+  panel.grid = element_line(colour="white"),
+  axis.text.x = element_text(colour="black"),
+  text = element_text(size=8)
+)
 
 #Part 1: Check the relationship between the frequency of all cases and temperature (Max Temp and Min Temp).
+# [Step 1] Calculating the mean and standard deviation of maximum temperature and minimum temperature
+mean(data$MaxTemp)
+sd(data$MaxTemp)
+mean(data$MinTemp)
+sd(data$MinTemp)
+#  [Step 2] Draw line chart
 #Mean and standard deviation of max temperature
 mean(data$MaxTemp)
 sd(data$MaxTemp)
 #Mean and standard deviation of min temperature
 mean(data$MinTemp)
 sd(data$MinTemp)
-# Draw line chart
-plot(table(data$MaxTemp),type="l",main= "The distribution of cases happened between 2011 and 2015", xlab="Temperature in degrees Fahrenheit", ylab="Number of cases",col="red")
-lines(table(data$MinTemp),type="l",col="blue",lty=2)
-legend('topright',  legend=c("Max Temperature", "Min Temperature"),col=c("red", "blue"), lty=1:2, cex=0.8)
+#Min Temperature
+minT=table(data$MinTemp)
+minT=as.data.frame(minT)
+minT$Var1=as.numeric(as.character(minT$Var1))
+minT=rename(minT, c("Var1"="Min.Temp", "Freq"="NumberofCases"))
+#Max Temperature
+maxT=table(data$MaxTemp)
+maxT=as.data.frame(maxT)
+maxT$Var1=as.numeric(as.character(maxT$Var1))
+maxT=rename(maxT, c("Var1"="Max.Temp", "Freq"="NumberofCases"))
+
+# Draw scatter plot
+ggplot() +
+  geom_point(data=maxT,aes(x=Max.Temp,y=NumberofCases),color = "red")+
+  geom_point(data=minT,aes(x=Min.Temp,y=NumberofCases),color = "blue")+
+  labs(title = "The distribution of cases happened from 2011-2015", x="Temperature in degrees Fahrenheit", y="Number of cases")+ 
+  theme_xkcd+
+  theme(plot.title = element_text(hjust = 0.5))
 
 
-# Classify the data of 2011-2015 according to the type of cases.
+# [Step 3] Classifying the data of 2011-2015 according to the type of crimes and counting the frequency for each type
 #ARSON
 arson=subset(data,OFFENSE=="ARSON")
-#Count the frequency of the type of cases
 nrow(arson)
-#ASSUT
+
+#ASSAULT
 assault=subset(data,OFFENSE=="ASSAULT W/DANGEROUS WEAPON")
-#Count the frequency of the type of cases
 nrow(assault)
+
 #BURGLARY
 burglary=subset(data,OFFENSE=="BURGLARY")
-#Count the frequency of the type of cases
 nrow(burglary)
+
 #HOMICIDE
 homicide=subset(data,OFFENSE=="HOMICIDE")
-#Count the frequency of the type of cases
 nrow(homicide)
+
 #MOTOR VEHICLE THEFT
 mvt=subset(data,OFFENSE=="MOTOR VEHICLE THEFT")
-#Count the frequency of the type of cases
 nrow(mvt)
+
 #ROBBERY
 robbery=subset(data,OFFENSE=="ROBBERY")
-#Count the frequency of the type of cases
 nrow(robbery)
+
 #SEX ABUSE
 sa=subset(data,OFFENSE=="SEX ABUSE")
-#Count the frequency of the type of cases
 nrow(sa)
+
 #THEFT FROM AUTO
 thefa=subset(data,OFFENSE=="THEFT F/AUTO")
-#Count the frequency of the type of cases
 nrow(thefa)
+
 #THEFT FROM OTHER
 thefot=subset(data,OFFENSE=="THEFT/OTHER")
-#Count the frequency of the type of cases
 nrow(thefot)
 
 
 #Part 2: Compare the impact of the range of temperature on the occurrence rate of all types of cases.
 #Independent variable: Range of temperature of each day (interval)
 #Dependent varibale: The frequency of each type of cases happened (ratio)
-#Find the frequency of each type of cases from the data of 2011-2015 corresponding to each numerical value in "range of temperature" column.
+
+# [Step 1] Calculating the frequency of each type of cases from the data of 2011-2015 corresponding to each numerical value in "range of temperature" column.
 
 #ARSON
 rangeT_arson=table(arson$RangeTemp)
 rangeT_arson=as.data.frame(rangeT_arson)
 rangeT_arson$Var1=as.numeric(as.character(rangeT_arson$Var1))
 rangeT_arson=rename(rangeT_arson, c("Var1"="Range.of.Temp", "Freq"="NumberofCases"))
+
 #ASSAULT
 rangeT_assault=table(assault$RangeTemp)
 rangeT_assault=as.data.frame(rangeT_assault)
 rangeT_assault$Var1=as.numeric(as.character(rangeT_assault$Var1))
 rangeT_assault=rename(rangeT_assault, c("Var1"="Range.of.Temp", "Freq"="NumberofCases"))
+
 #BURGLARY
 rangeT_burglary=table(burglary$RangeTemp)
 rangeT_burglary=as.data.frame(rangeT_burglary)
 rangeT_burglary$Var1=as.numeric(as.character(rangeT_burglary$Var1))
 rangeT_burglary=rename(rangeT_burglary, c("Var1"="Range.of.Temp", "Freq"="NumberofCases"))
+
 #HOMICIDE
 rangeT_homicide=table(homicide$RangeTemp)
 rangeT_homicide=as.data.frame(rangeT_homicide)
 rangeT_homicide$Var1=as.numeric(as.character(rangeT_homicide$Var1))
 rangeT_homicide=rename(rangeT_homicide, c("Var1"="Range.of.Temp", "Freq"="NumberofCases"))
+
 #MOTOR VEHICLE THEFT
 rangeT_mvt=table(mvt$RangeTemp)
 rangeT_mvt=as.data.frame(rangeT_mvt)
 rangeT_mvt$Var1=as.numeric(as.character(rangeT_mvt$Var1))
 rangeT_mvt=rename(rangeT_mvt, c("Var1"="Range.of.Temp", "Freq"="NumberofCases"))
+
 #ROBBERY
 rangeT_robbery=table(robbery$RangeTemp)
 rangeT_robbery=as.data.frame(rangeT_robbery)
 rangeT_robbery$Var1=as.numeric(as.character(rangeT_robbery$Var1))
 rangeT_robbery=rename(rangeT_robbery, c("Var1"="Range.of.Temp", "Freq"="NumberofCases"))
+
 #SEX ABUSE
 rangeT_sa=table(sa$RangeTemp)
 rangeT_sa=as.data.frame(rangeT_sa)
 rangeT_sa$Var1=as.numeric(as.character(rangeT_sa$Var1))
 rangeT_sa=rename(rangeT_sa, c("Var1"="Range.of.Temp", "Freq"="NumberofCases"))
+
 #THEFT FROM AUTO
 rangeT_thefa=table(thefa$RangeTemp)
 rangeT_thefa=as.data.frame(rangeT_thefa)
 rangeT_thefa$Var1=as.numeric(as.character(rangeT_thefa$Var1))
 rangeT_thefa=rename(rangeT_thefa, c("Var1"="Range.of.Temp", "Freq"="NumberofCases"))
+
 #THEFT FROM OTHER
 rangeT_thefot=table(thefot$RangeTemp)
 rangeT_thefot=as.data.frame(rangeT_thefot)
 rangeT_thefot$Var1=as.numeric(as.character(rangeT_thefot$Var1))
 rangeT_thefot=rename(rangeT_thefot, c("Var1"="Range.of.Temp", "Freq"="NumberofCases"))
 
-#Draw histogram
-
+# [Step 2] Drawing histogram for each type
 #ARSON
-hist(rangeT_arson$Range.of.Temp,main= "The distribution of 'ARSON' cases happened between 2011 and 2015", xlab="Range of temperature in degrees Fahrenheit", ylab="Number of cases") 
+ggplot(data=rangeT_arson, aes(x=Range.of.Temp, y=NumberofCases, fill=Range.of.Temp)) +
+  geom_bar(stat="identity")+
+  labs(title = "The distribution of 'ARSON' cases  2011-2015", x="Range of temperature in degrees Fahrenheit", y="Number of cases")+
+  theme_xkcd+
+  theme(plot.title = element_text(hjust = 0.5))
 #ASSAULT
-hist(rangeT_assault$Range.of.Temp,main= "The distribution of 'ASSAULT' cases happened between 2011 and 2015", xlab="Range of temperature in degrees Fahrenheit", ylab="Number of cases") 
+ggplot(data=rangeT_assault, aes(x=Range.of.Temp, y=NumberofCases, fill=Range.of.Temp)) +
+  geom_bar(stat="identity")+
+  labs(title = "The distribution of 'ASSAULT' cases  2011-2015", x="Range of temperature in degrees Fahrenheit", y="Number of cases")+
+  theme_xkcd+
+  theme(plot.title = element_text(hjust = 0.5))
 #BURGLARY
-hist(rangeT_burglary$Range.of.Temp,main= "The distribution of 'BURGLARY' cases happened between 2011 and 2015", xlab="Range of temperature in degrees Fahrenheit", ylab="Number of cases") 
+ggplot(data=rangeT_burglary, aes(x=Range.of.Temp, y=NumberofCases, fill=Range.of.Temp)) +
+  geom_bar(stat="identity")+
+  labs(title = "The distribution of 'BURGLARY' cases  2011-2015", x="Range of temperature in degrees Fahrenheit", y="Number of cases")+
+  theme_xkcd+
+  theme(plot.title = element_text(hjust = 0.5))
 #HOMICIDE
-hist(rangeT_homicide$Range.of.Temp,main= "The distribution of 'HOMICIDE' cases happened between 2011 and 2015", xlab="Range of temperature in degrees Fahrenheit", ylab="Number of cases") 
+ggplot(data=rangeT_homicide, aes(x=Range.of.Temp, y=NumberofCases, fill=Range.of.Temp)) +
+  geom_bar(stat="identity")+
+  labs(title = "The distribution of 'HOMICIDE' cases  2011-2015", x="Range of temperature in degrees Fahrenheit", y="Number of cases")+
+  theme_xkcd+
+  theme(plot.title = element_text(hjust = 0.5))
 #MOTOR VEHICLE THEFT
-hist(rangeT_mvt$Range.of.Temp,main= "The distribution of 'MOTOR VEHICLE THEFT' cases happened between 2011 and 2015", xlab="Range of temperature in degrees Fahrenheit", ylab="Number of cases") 
+ggplot(data=rangeT_mvt, aes(x=Range.of.Temp, y=NumberofCases, fill=Range.of.Temp)) +
+  geom_bar(stat="identity")+
+  labs(title = "The distribution of 'MOTOR VEHICLE THEFT' cases  2011-2015", x="Range of temperature in degrees Fahrenheit", y="Number of cases")+
+  theme_xkcd+
+  theme(plot.title = element_text(hjust = 0.5))
 #ROBBERY
-hist(rangeT_robbery$Range.of.Temp,main= "The distribution of 'ROBBERY' cases happened between 2011 and 2015", xlab="Range of temperature in degrees Fahrenheit", ylab="Number of cases") 
+ggplot(data=rangeT_robbery, aes(x=Range.of.Temp, y=NumberofCases, fill=Range.of.Temp)) +
+  geom_bar(stat="identity")+
+  labs(title = "The distribution of 'ROBBERY' cases  2011-2015", x="Range of temperature in degrees Fahrenheit", y="Number of cases")+
+  theme_xkcd+
+  theme(plot.title = element_text(hjust = 0.5))
 #SEX ABUSE
-hist(rangeT_sa$Range.of.Temp,main= "The distribution of 'SEX ABUSE' cases happened between 2011 and 2015", xlab="Range of temperature in degrees Fahrenheit", ylab="Number of cases") 
+ggplot(data=rangeT_sa, aes(x=Range.of.Temp, y=NumberofCases, fill=Range.of.Temp)) +
+  geom_bar(stat="identity")+
+  labs(title = "The distribution of 'SEX ABUSE' cases  2011-2015", x="Range of temperature in degrees Fahrenheit", y="Number of cases")+
+  theme_xkcd+
+  theme(plot.title = element_text(hjust = 0.5))
 #THEFT FROM AUTO
-hist(rangeT_thefa$Range.of.Temp,main= "The distribution of 'THEFT FROM AUTO' cases happened between 2011 and 2015", xlab="Range of temperature in degrees Fahrenheit", ylab="Number of cases") 
+ggplot(data=rangeT_thefa, aes(x=Range.of.Temp, y=NumberofCases, fill=Range.of.Temp)) +
+  geom_bar(stat="identity")+
+  labs(title = "The distribution of 'THEFT FROM AUTO' cases  2011-2015", x="Range of temperature in degrees Fahrenheit", y="Number of cases")+
+  theme_xkcd+
+  theme(plot.title = element_text(hjust = 0.5))
 #THEFT FROM OTHER
-hist(rangeT_thefot$Range.of.Temp,main= "The distribution of 'THEFT FROM OTHER' cases happened between 2011 and 2015", xlab="Range of temperature in degrees Fahrenheit", ylab="Number of cases") 
+ggplot(data=rangeT_thefot, aes(x=Range.of.Temp, y=NumberofCases, fill=Range.of.Temp)) +
+  geom_bar(stat="identity")+
+  labs(title = "The distribution of 'THEFT FROM OTHER' cases 2011-2015", x="Range of temperature in degrees Fahrenheit", y="Number of cases")+
+  theme_xkcd+
+  theme(plot.title = element_text(hjust = 0.5))
 
 
 #Part 3: Compare the impact of max temperature on the occurrence rate of all types of cases.
@@ -154,55 +227,87 @@ hist(rangeT_thefot$Range.of.Temp,main= "The distribution of 'THEFT FROM OTHER' c
 #Dependent varibale: The frequency of each type of cases happened (ratio)
 
 #ARSON
-#Find out the max temperature on the day when this type of cases happened, and count the frequency of the same type of cases corresponding to each temperature.
+# [Step 1] Finding out the max temperature on the day when this type of cases happened, and then counting the frequency of the same type of cases corresponding to each temperature.
 maxT_arson=table(arson$MaxTemp)
 maxT_arson=as.data.frame(maxT_arson)
-#Save the value of temperature and  frequency of the type of cases in a new data frame
+# [Step 2] Saving the value of temperature and  frequency of the type of cases in a new data frame
 maxT_arson$Var1=as.numeric(as.character(maxT_arson$Var1))
-#Rename columns' names
+# [Step 3] Renaming columns' names
 maxT_arson=rename(maxT_arson, c("Var1"="MaxTemp", "Freq"="NumberofCases"))
+
 #ASSAULT
+# [Step 1] Finding out the max temperature on the day when this type of cases happened, and then counting the frequency of the same type of cases corresponding to each temperature.
 maxT_assault=table(assault$MaxTemp)
 maxT_assault=as.data.frame(maxT_assault)
+# [Step 2] Saving the value of temperature and  frequency of the type of cases in a new data frame
 maxT_assault$Var1=as.numeric(as.character(maxT_assault$Var1))
+# [Step 3] Renaming columns' names
 maxT_assault=rename(maxT_assault, c("Var1"="MaxTemp", "Freq"="NumberofCases"))
+
 #BURGLARY
+# [Step 1] Finding out the max temperature on the day when this type of cases happened, and then counting the frequency of the same type of cases corresponding to each temperature.
 maxT_burglary=table(burglary$MaxTemp)
 maxT_burglary=as.data.frame(maxT_burglary)
+# [Step 2] Saving the value of temperature and  frequency of the type of cases in a new data frame
 maxT_burglary$Var1=as.numeric(as.character(maxT_burglary$Var1))
+# [Step 3] Renaming columns' names
 maxT_burglary=rename(maxT_burglary, c("Var1"="MaxTemp", "Freq"="NumberofCases"))
+
 #HOMICIDE
+# [Step 1] Finding out the max temperature on the day when this type of cases happened, and then counting the frequency of the same type of cases corresponding to each temperature.
 maxT_homicide=table(homicide$MaxTemp)
 maxT_homicide=as.data.frame(maxT_homicide)
+# [Step 2] Saving the value of temperature and  frequency of the type of cases in a new data frame
 maxT_homicide$Var1=as.numeric(as.character(maxT_homicide$Var1))
+# [Step 3] Renaming columns' names
 maxT_homicide=rename(maxT_homicide, c("Var1"="MaxTemp", "Freq"="NumberofCases"))
+
 #MOTOR VEHICLE THEFT
+# [Step 1] Finding out the max temperature on the day when this type of cases happened, and then counting the frequency of the same type of cases corresponding to each temperature.
 maxT_mvt=table(mvt$MaxTemp)
 maxT_mvt=as.data.frame(maxT_mvt)
+# [Step 2] Saving the value of temperature and  frequency of the type of cases in a new data frame
 maxT_mvt$Var1=as.numeric(as.character(maxT_mvt$Var1))
+# [Step 3] Renaming columns' names
 maxT_mvt=rename(maxT_mvt, c("Var1"="MaxTemp", "Freq"="NumberofCases"))
+
 #ROBBERY
+# [Step 1] Finding out the max temperature on the day when this type of cases happened, and then counting the frequency of the same type of cases corresponding to each temperature.
 maxT_robbery=table(robbery$MaxTemp)
 maxT_robbery=as.data.frame(maxT_robbery)
+# [Step 2] Saving the value of temperature and  frequency of the type of cases in a new data frame
 maxT_robbery$Var1=as.numeric(as.character(maxT_robbery$Var1))
+# [Step 3] Renaming columns' names
 maxT_robbery=rename(maxT_robbery, c("Var1"="MaxTemp", "Freq"="NumberofCases"))
+
 #SEX ABUSE
+# [Step 1] Finding out the max temperature on the day when this type of cases happened, and then counting the frequency of the same type of cases corresponding to each temperature.
 maxT_sa=table(sa$MaxTemp)
 maxT_sa=as.data.frame(maxT_sa)
+# [Step 2] Saving the value of temperature and  frequency of the type of cases in a new data frame
 maxT_sa$Var1=as.numeric(as.character(maxT_sa$Var1))
+# [Step 3] Renaming columns' names
 maxT_sa=rename(maxT_sa, c("Var1"="MaxTemp", "Freq"="NumberofCases"))
+
 #THEFT FROM AUTO
+# [Step 1] Finding out the max temperature on the day when this type of cases happened, and then counting the frequency of the same type of cases corresponding to each temperature.
 maxT_thefa=table(thefa$MaxTemp)
 maxT_thefa=as.data.frame(maxT_thefa)
+# [Step 2] Saving the value of temperature and  frequency of the type of cases in a new data frame
 maxT_thefa$Var1=as.numeric(as.character(maxT_thefa$Var1))
+# [Step 3] Renaming columns' names
 maxT_thefa=rename(maxT_thefa, c("Var1"="MaxTemp", "Freq"="NumberofCases"))
+
 #THEFT FROM OTHER
+# [Step 1] Finding out the max temperature on the day when this type of cases happened, and then counting the frequency of the same type of cases corresponding to each temperature.
 maxT_thefot=table(thefot$MaxTemp)
 maxT_thefot=as.data.frame(maxT_thefot)
+# [Step 2] Saving the value of temperature and  frequency of the type of cases in a new data frame
 maxT_thefot$Var1=as.numeric(as.character(maxT_thefot$Var1))
+# [Step 3] Renaming columns' names
 maxT_thefot=rename(maxT_thefot, c("Var1"="MaxTemp", "Freq"="NumberofCases"))
 
-#Use "simple linear regression model" to analyze the relationship between IV and DV,because IV is interval,and DV is ratio.
+# Part 4: Using "simple linear regression model" to analyze the relationship between IV and DV,because IV is interval,and DV is ratio.
 
 #ARSON
 summary(lm(NumberofCases~MaxTemp,data=maxT_arson))
@@ -223,54 +328,71 @@ summary(lm(NumberofCases~MaxTemp,data=maxT_thefa))
 #THEFT FROM OTHER
 summary(lm(NumberofCases~MaxTemp,data=maxT_thefot))
 
-# Draw scatterplots
+# Part 5: Creating scatterplots
 
 #ARSON
 ggplot(maxT_arson,aes(MaxTemp,NumberofCases))+ 
   geom_point()+
   geom_smooth(method='lm')+
-  labs(title = "The relationship between number of 'ARSON' cases happened and average temperature from 2011 to 2015", x="Temperature in degrees Fahrenheit", y="Number of cases")
+  labs(title = "The relationship between number of 'ARSON' cases and max temperature 2011-2015", x="Temperature in degrees Fahrenheit", y="Number of cases")+
+  theme_xkcd+
+  theme(plot.title = element_text(hjust = 0.5))
 #ASSAULT
 ggplot(maxT_assault,aes(MaxTemp,NumberofCases))+ 
   geom_point()+
   geom_smooth(method='lm')+
-  labs(title = "The relationship between number of 'ASSAULT' cases happened and average temperature from 2011 to 2015", x="Temperature in degrees Fahrenheit", y="Number of cases")
+  labs(title = "The relationship between number of 'ASSAULT' cases and max temperature 2011-2015", x="Temperature in degrees Fahrenheit", y="Number of cases")+
+  theme_xkcd+
+  theme(plot.title = element_text(hjust = 0.5))
 #BURGLARY
 ggplot(maxT_burglary,aes(MaxTemp,NumberofCases))+ 
   geom_point()+
   geom_smooth(method='lm')+
-  labs(title = "The relationship between number of 'BURGLARY' cases happened and average temperature from 2011 to 2015", x="Temperature in degrees Fahrenheit", y="Number of cases")
+  labs(title = "The relationship between number of 'BURGLARY' cases and max temperature 2011-2015", x="Temperature in degrees Fahrenheit", y="Number of cases")+
+  theme_xkcd+
+  theme(plot.title = element_text(hjust = 0.5))
 #HOMICIDE
 ggplot(maxT_homicide,aes(MaxTemp,NumberofCases))+ 
   geom_point()+
   geom_smooth(method='lm')+
-  labs(title = "The relationship between number of 'HOMICIDE' cases happened and average temperature from 2011 to 2015", x="Temperature in degrees Fahrenheit", y="Number of cases")
+  labs(title = "The relationship between number of 'HOMICIDE' cases and max temperature 2011-2015", x="Temperature in degrees Fahrenheit", y="Number of cases")+
+  theme_xkcd+
+  theme(plot.title = element_text(hjust = 0.5))
 #MOTOR VEHICLE THEFT
 ggplot(maxT_mvt,aes(MaxTemp,NumberofCases))+ 
   geom_point()+
   geom_smooth(method='lm')+
-  labs(title = "The relationship between number of 'MOTOR VEHICLE THEFT' cases happened and average temperature from 2011 to 2015", x="Temperature in degrees Fahrenheit", y="Number of cases")
+  labs(title = "The relationship between number of 'MOTOR VEHICLE THEFT' cases and max temperature 2011-2015", x="Temperature in degrees Fahrenheit", y="Number of cases")+
+  theme_xkcd+
+  theme(plot.title = element_text(hjust = 0.5))
 #ROBBERY
 ggplot(maxT_robbery,aes(MaxTemp,NumberofCases))+ 
   geom_point()+
   geom_smooth(method='lm')+
-  labs(title = "The relationship between number of 'ROBBERY' cases happened and average temperature from 2011 to 2015", x="Temperature in degrees Fahrenheit", y="Number of cases")
+  labs(title = "The relationship between number of 'ROBBERY' cases and max temperature 2011-2015", x="Temperature in degrees Fahrenheit", y="Number of cases")+
+  theme_xkcd+
+  theme(plot.title = element_text(hjust = 0.5))
 #SEX ABUSE
 ggplot(maxT_sa,aes(MaxTemp,NumberofCases))+ 
   geom_point()+
   geom_smooth(method='lm')+
-  labs(title = "The relationship between number of 'SEX ABUSE' cases happened and average temperature from 2011 to 2015", x="Temperature in degrees Fahrenheit", y="Number of cases")
+  labs(title = "The relationship between number of 'SEX ABUSE' cases and max temperature 2011-2015", x="Temperature in degrees Fahrenheit", y="Number of cases")+
+  theme_xkcd+
+  theme(plot.title = element_text(hjust = 0.5))
 #THEFT FROM AUTO
 ggplot(maxT_thefa,aes(MaxTemp,NumberofCases))+ 
   geom_point()+
   geom_smooth(method='lm')+
-  labs(title = "The relationship between number of 'THEFT FROM AUTO' cases happened and average temperature from 2011 to 2015", x="Temperature in degrees Fahrenheit", y="Number of cases")
+  labs(title = "The relationship between number of 'THEFT FROM AUTO' cases and max temperature 2011-2015", x="Temperature in degrees Fahrenheit", y="Number of cases")+
+  theme_xkcd+
+  theme(plot.title = element_text(hjust = 0.5))
 #THEFT FROM OTHER
 ggplot(maxT_thefot,aes(MaxTemp,NumberofCases))+ 
   geom_point()+
   geom_smooth(method='lm')+
-  labs(title = "The relationship between  number of 'THEFT FROM OTHER' cases happened and average temperature from 2011 to 2015", x="Temperature in degrees Fahrenheit", y="Number of cases")
-
+  labs(title = "The relationship between  number of 'THEFT FROM OTHER' cases and max temperature 2011-2015", x="Temperature in degrees Fahrenheit", y="Number of cases")+
+  theme_xkcd+
+  theme(plot.title = element_text(hjust = 0.5))
 # End of R Script for Research Question [1]
 
 
@@ -287,17 +409,17 @@ ggplot(maxT_thefot,aes(MaxTemp,NumberofCases))+
 
 # [Step 0.0] Opening each dataset in RStudio
 
-Crime_Incidents__2011 <- read.csv("C:/Users/PAL/Desktop/MIM/INFM600/Project/Data/Crime_Incidents__2011.csv")
+Crime_Incidents__2011 <- read.csv(file.choose())
 View(Crime_Incidents__2011)
-Crime_Incidents__2012 <- read.csv("C:/Users/PAL/Desktop/MIM/INFM600/Project/Data/Crime_Incidents__2012.csv")
+Crime_Incidents__2012 <- read.csv(file.choose())
 View(Crime_Incidents__2012)
-Crime_Incidents__2013 <- read.csv("C:/Users/PAL/Desktop/MIM/INFM600/Project/Data/Crime_Incidents__2013.csv")
+Crime_Incidents__2013 <- read.csv(file.choose())
 View(Crime_Incidents__2013)
-Crime_Incidents__2014 <- read.csv("C:/Users/PAL/Desktop/MIM/INFM600/Project/Data/Crime_Incidents__2014.csv")
+Crime_Incidents__2014 <- read.csv(file.choose())
 View(Crime_Incidents__2014)
-Crime_Incidents__2015 <- read.csv("C:/Users/PAL/Desktop/MIM/INFM600/Project/Data/Crime_Incidents__2015.csv")
+Crime_Incidents__2015 <- read.csv(file.choose())
 View(Crime_Incidents__2015)
-club.clusterwise <- read.csv("C:/Users/PAL/Desktop/MIM/INFM600/Project/Data/NightClub_Cluster.csv")
+club.clusterwise <- read.csv(file.choose())
 View(club.clusterwise)
 
 # [Step 0.1] Merging the crime data for all years 2011-2015 into one dataset
@@ -313,7 +435,7 @@ total.clusterwise=table(merged.dataset$NEIGHBORHOODCLUSTER)
 write.csv(total.clusterwise,file="total.clusterwise.csv")
 
 # [Step 2] Reading in the file created in above step and renaming the columns for better understandability 
-total.clusterwise <- read.csv("C:/Users/PAL/Desktop/MIM/INFM600/Project/3.RScript/AnalysisScript/total.clusterwise.csv", row.names=1)
+total.clusterwise <- read.csv(file.choose())
 View(total.clusterwise)
 names(total.clusterwise)=c("Cluster","Number.Crimes")
 
@@ -336,7 +458,7 @@ arson.clusterwise=table(arson$NEIGHBORHOODCLUSTER)
 write.csv(arson.clusterwise,file="arson.clusterwise.csv")
 
 # [Step 3] Reading in the file created in above step and renaming the columns for better understandability 
-arson.clusterwise <- read.csv("C:/Users/PAL/Desktop/MIM/INFM600/Project/3.RScript/AnalysisScript/arson.clusterwise.csv", row.names=1)
+arson.clusterwise <- read.csv(file.choose())
 View(arson.clusterwise)
 names(arson.clusterwise)=c("Cluster","Number.Crimes")
 
@@ -359,7 +481,7 @@ assault.clusterwise=table(assault$NEIGHBORHOODCLUSTER)
 write.csv(assault.clusterwise,file="assault.clusterwise.csv")
 
 # [Step 3] Reading in the file created in above step and renaming the columns for better understandability 
-assault.clusterwise <- read.csv("C:/Users/PAL/Desktop/MIM/INFM600/Project/3.RScript/AnalysisScript/assault.clusterwise.csv", row.names=1)
+assault.clusterwise <- read.csv(file.choose())
 View(assault.clusterwise)
 names(assault.clusterwise)=c("Cluster","Number.Crimes")
 
@@ -382,7 +504,7 @@ burglary.clusterwise=table(burglary$NEIGHBORHOODCLUSTER)
 write.csv(burglary.clusterwise,file="burglary.clusterwise.csv")
 
 # [Step 3] Reading in the file created in above step and renaming the columns for better understandability 
-burglary.clusterwise <- read.csv("C:/Users/PAL/Desktop/MIM/INFM600/Project/3.RScript/AnalysisScript/burglary.clusterwise.csv", row.names=1)
+burglary.clusterwise <- read.csv(file.choose())
 View(burglary.clusterwise)
 names(burglary.clusterwise)=c("Cluster","Number.Crimes")
 
@@ -405,7 +527,7 @@ homicide.clusterwise=table(homicide$NEIGHBORHOODCLUSTER)
 write.csv(homicide.clusterwise,file="homicide.clusterwise.csv")
 
 # [Step 3] Reading in the file created in above step and renaming the columns for better understandability 
-homicide.clusterwise <- read.csv("C:/Users/PAL/Desktop/MIM/INFM600/Project/3.RScript/AnalysisScript/homicide.clusterwise.csv", row.names=1)
+homicide.clusterwise <- read.csv(file.choose())
 View(homicide.clusterwise)
 names(homicide.clusterwise)=c("Cluster","Number.Crimes")
 
@@ -428,7 +550,7 @@ motor.theft.clusterwise=table(motor.theft$NEIGHBORHOODCLUSTER)
 write.csv(motor.theft.clusterwise,file="motor.theft.clusterwise.csv")
 
 # [Step 3] Reading in the file created in above step and renaming the columns for better understandability 
-motor.theft.clusterwise <- read.csv("C:/Users/PAL/Desktop/MIM/INFM600/Project/3.RScript/AnalysisScript/motor.theft.clusterwise.csv", row.names=1)
+motor.theft.clusterwise <- read.csv(file.choose())
 View(motor.theft.clusterwise)
 names(motor.theft.clusterwise)=c("Cluster","Number.Crimes")
 
@@ -451,7 +573,7 @@ robbery.clusterwise=table(robbery$NEIGHBORHOODCLUSTER)
 write.csv(robbery.clusterwise,file="robbery.clusterwise.csv")
 
 # [Step 3] Reading in the file created in above step and renaming the columns for better understandability 
-robbery.clusterwise <- read.csv("C:/Users/PAL/Desktop/MIM/INFM600/Project/3.RScript/AnalysisScript/robbery.clusterwise.csv", row.names=1)
+robbery.clusterwise <- read.csv(file.choose())
 View(robbery.clusterwise)
 names(robbery.clusterwise)=c("Cluster","Number.Crimes")
 
@@ -474,7 +596,7 @@ sex.abuse.clusterwise=table(sex.abuse$NEIGHBORHOODCLUSTER)
 write.csv(sex.abuse.clusterwise,file="sex.abuse.clusterwise.csv")
 
 # [Step 3] Reading in the file created in above step and renaming the columns for better understandability 
-sex.abuse.clusterwise <- read.csv("C:/Users/PAL/Desktop/MIM/INFM600/Project/3.RScript/AnalysisScript/sex.abuse.clusterwise.csv", row.names=1)
+sex.abuse.clusterwise <- read.csv(file.choose())
 View(sex.abuse.clusterwise)
 names(sex.abuse.clusterwise)=c("Cluster","Number.Crimes")
 
@@ -497,7 +619,7 @@ theft.auto.clusterwise=table(theft.auto$NEIGHBORHOODCLUSTER)
 write.csv(theft.auto.clusterwise,file="theft.auto.clusterwise.csv")
 
 # [Step 3] Reading in the file created in above step and renaming the columns for better understandability 
-theft.auto.clusterwise <- read.csv("C:/Users/PAL/Desktop/MIM/INFM600/Project/3.RScript/AnalysisScript/theft.auto.clusterwise.csv", row.names=1)
+theft.auto.clusterwise <- read.csv(file.choose())
 View(theft.auto.clusterwise)
 names(theft.auto.clusterwise)=c("Cluster","Number.Crimes")
 
@@ -520,7 +642,7 @@ theft.other.clusterwise=table(theft.other$NEIGHBORHOODCLUSTER)
 write.csv(theft.other.clusterwise,file="theft.other.clusterwise.csv")
 
 # [Step 3] Reading in the file created in above step and renaming the columns for better understandability 
-theft.other.clusterwise <- read.csv("C:/Users/PAL/Desktop/MIM/INFM600/Project/3.RScript/AnalysisScript/theft.other.clusterwise.csv", row.names=1)
+theft.other.clusterwise <- read.csv(file.choose())
 View(theft.other.clusterwise)
 names(theft.other.clusterwise)=c("Cluster","Number.Crimes")
 
@@ -652,37 +774,37 @@ cor.test(club.theft.other.cluster$Number.Clubs,club.theft.other.cluster$Number.C
 # Columns/Attributes used: REPORTDATETIME, START_DATE, END_DATE in dataset (1), Date in dataset(2)
 # Packages: dplyr, tidyr
 
-#loading all datasets
-Crime_Data_2011 <- read.csv("~/INFM600/Crime_Data_2011.csv")
-Crime_Data_2012 <- read.csv("~/INFM600/Crime_Data_2012.csv")
-Crime_Data_2013 <- read.csv("~/INFM600/Crime_Data_2013.csv")
-Crime_Data_2014 <- read.csv("~/INFM600/Crime_Data_2014.csv")
-Crime_Data_2015 <- read.csv("~/INFM600/Crime_Data_2015.csv")
+# [Step 0] loading all datasets
+Crime_Data_2011 <- read.csv(file.choose())
+Crime_Data_2012 <- read.csv(file.choose())
+Crime_Data_2013 <- read.csv(file.choose())
+Crime_Data_2014 <- read.csv(file.choose())
+Crime_Data_2015 <- read.csv(file.choose())
 
-#Appending all datasets into one
+#[Step 1] Appending all datasets into one
 FinalDataSet <- rbind.data.frame(Crime_Data_2011, Crime_Data_2012, Crime_Data_2013, Crime_Data_2014, Crime_Data_2015)
 View(FinalDataSet)
 
-#Segregating the REPORTDATETIME column into Date and Time columns by using the library tidyr
+# [Step 3] Segregating the REPORTDATETIME column into Date and Time columns by using the library tidyr
 library(tidyr)
 FinalDataSet <- separate(FinalDataSet, REPORTDATETIME, c("Date", "Time"), sep = "T")
 View(FinalDataSet)
 
-#Converting Date column to proper format
+# [Step 4] Converting Date column to proper format
 class(FinalDataSet$Date)
 FinalDataSet$Date <- as.Date(FinalDataSet$Date)
 class(FinalDataSet$Date)
 
-#Segregating the START_DATE AND END_DATE column, having timestamp into StartDate and EndDate columns without Timestamp
+# [Step 5] Segregating the START_DATE AND END_DATE column, having timestamp into StartDate and EndDate columns without Timestamp
 FinalDataSet <- separate(FinalDataSet, START_DATE , c("StartDate", "Time1"), sep = "T")
 FinalDataSet <- separate(FinalDataSet, END_DATE, c("EndDate", "Time2"), sep = "T")
 View(FinalDataSet)
 
-#Converting the StartDate and EndDate into Date format
+# [Step 6] Converting the StartDate and EndDate into Date format
 FinalDataSet$StartDate <- as.Date(FinalDataSet$StartDate)
 FinalDataSet$EndDate <- as.Date(FinalDataSet$EndDate)
 
-#Calculating the duration of crime
+# [Step 7] Calculating the duration of crime
 FinalDataSet$DurationInDays <- FinalDataSet$EndDate - FinalDataSet$StartDate
 View(FinalDataSet)
 class(FinalDataSet$DurationInDays)
@@ -692,10 +814,10 @@ FinalDataSet$DurationInDays <- NULL
 View(FinalDataSet)
 hist(FinalDataSet$DurationNumeric)
 
-#writing the FinalDataSet as a csv file
+# [Step 8] writing the FinalDataSet as a csv file
 write.csv(FinalDataSet, file = "HolidayCrimeData.csv")
 
-#removing all the unnecessary columns from the dataset
+# [Step 9] removing all the unnecessary columns from the dataset
 FinalDataSet$X <- NULL
 FinalDataSet$Y <- NULL
 FinalDataSet$OBJECTID <- NULL
@@ -711,46 +833,44 @@ FinalDataSet$CENSUS_TRACT <- NULL
 FinalDataSet$VOTING_PRECINCT <- NULL
 View(FinalDataSet)
 
-#sorting the StartDate of crime in ascending order
+# [Step 10] sorting the StartDate of crime in ascending order
 FinalDataSet <- FinalDataSet[order(FinalDataSet$StartDate),]
 View(FinalDataSet)
 min(FinalDataSet$StartDate, na.rm = TRUE)
 FinalDataSet <- FinalDataSet[order(FinalDataSet$DurationNumeric),]
 View(FinalDataSet)
 
-#Getting a summary of basic descriptive statistics 
+# [Step 11] Getting a summary of basic descriptive statistics 
 summary(FinalDataSet$DurationNumeric)
-#the value of duration of crimes range from -1659 days to 328700 days with dates from the year 1800 to 2911
-#indicating that there are a lot of incorrect data
+# NOTE: The value of duration of crimes range from -1659 days to 328700 days with dates from the year 1800 to 2911 indicating that there are a lot of incorrect data
 
-#Removing the outliers and keeping only the relevant values
-#Keeping only those crime details for which duration was less than 7 days
+# [Step 12] Removing the outliers and keeping only the relevant values; only those crime details for which duration was less than 7 days
 FinalDataSet <- FinalDataSet[FinalDataSet$DurationNumeric <= 7 & FinalDataSet$DurationNumeric >= 0 & FinalDataSet$EndDate > as.Date("2011-01-01"),]
 View(FinalDataSet)
 write.csv(FinalDataSet, file = "FinalDataSet.csv", row.names = FALSE)
 
-#removing the missing values
+# [Step 13] removing the missing values
 FinalDataSet <- na.omit(FinalDataSet)
 dim(FinalDataSet)
 table(FinalDataSet$OFFENSE)
 
-#grouping the days into weeks
+# [Step 14] grouping the days into weeks
 FinalDataSet$WeekNo <- format(FinalDataSet$EndDate, "%U")
 FinalDataSet$WeekNo <- as.numeric(FinalDataSet$WeekNo)
 class(FinalDataSet$WeekNo)
 
-#importing the holidays dataset
+# [Step 15] importing the holidays dataset
 Holidays <- read.csv(file.choose())
 class(Holidays$Date)
 Holidays$Date <- as.Date(Holidays$Date)
 Holidays$HolidayWeek <- format(Holidays$Date, "%U")
 class(Holidays$HolidayWeek)
 
-#converting HolidaysWeek to numeric
+# [Step 16] converting HolidaysWeek to numeric
 Holidays$HolidayWeek <- as.numeric(Holidays$HolidayWeek)
 
 
-##Creating a function for conducting t-tests and using the library dplyr
+# [Step 17] Creating a function for conducting t-tests and using the library dplyr
 HolidayVsNonHoliday <- function(x, y = Holidays){
   library(dplyr)
   w <- semi_join(x, y, by = "WeekNo" )
@@ -760,7 +880,7 @@ HolidayVsNonHoliday <- function(x, y = Holidays){
   t.test(w$Freq, z$Freq)
 }
 
-#subsetting different categories of crime
+# [Step 18] subsetting different categories of crime
 table(FinalDataSet$OFFENSE)
 ArsonSet <- subset(FinalDataSet, FinalDataSet$OFFENSE == "ARSON")
 AssaultSet <- subset(FinalDataSet, FinalDataSet$OFFENSE == "ASSAULT W/DANGEROUS WEAPON")
@@ -772,7 +892,7 @@ SexAbuseSet <- subset(FinalDataSet, FinalDataSet$OFFENSE == "SEX ABUSE")
 TheftSet <- subset(FinalDataSet, FinalDataSet$OFFENSE == "THEFT/OTHER")
 TheftAutoSet <- subset(FinalDataSet, FinalDataSet$OFFENSE == "THEFT F/AUTO")
 
-#conducting t-tests on subsets
+# [Step 19] conducting t-tests on subsets
 HolidayVsNonHoliday(ArsonSet)
 HolidayVsNonHoliday(FinalDataSet)
 HolidayVsNonHoliday(AssaultSet)
@@ -784,14 +904,14 @@ HolidayVsNonHoliday(SexAbuseSet)
 HolidayVsNonHoliday(TheftSet)
 HolidayVsNonHoliday(TheftAutoSet)
 
-#function for plotting different types of crime
+#  [Step 20] function for plotting different types of crime
 plotcrime <- function(x){
   x <- table(x$WeekNo)
   plot(x, type = "l", col = "blue", lwd = 2)
   abline(v = Holidays$WeekNo, col = "red", lwd = 2)
 }
 
-#making plots
+# [Step 21] making plots
 plotcrime(FinalDataSet)
 plotcrime(ArsonSet)
 plotcrime(AssaultSet)
@@ -804,4 +924,4 @@ plotcrime(TheftSet)
 # End of RScript for Research Question [3]
 
 # INFM600 Information Environment[Team Exceptional]
-# Date Updated: 16 November 2016. 10:42:56AM
+# Date Updated: 11 December 2016. 11:15:19PM
